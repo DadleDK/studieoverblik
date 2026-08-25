@@ -1,0 +1,2459 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studieoverblik — 3. semester</title>
+<meta name="theme-color" content="#123d2c">
+<meta name="description" content="Et roligt, lokalt studieoverblik med quiz og eksamenstræning til 3. semester.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./app.webmanifest">
+<link rel="icon" href="./app-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #f4f7f2;
+    --panel: #ffffff;
+    --panel-soft: #eef4ed;
+    --border: #dce6dc;
+    --text: #193127;
+    --muted: #64746b;
+    --accent: #277154;
+    --accent-deep: #123d2c;
+    --accent-soft: #dff1df;
+    --covered: #2f8f5f;
+    --covered-bg: #e5f4ec;
+    --partly: #b1780b;
+    --partly-bg: #fbf0d9;
+    --missing: #b3402f;
+    --missing-bg: #fbe9e6;
+    --shadow: 0 16px 34px rgba(25, 49, 39, 0.08), 0 2px 5px rgba(25, 49, 39, 0.04);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(circle at 85% -5%, #d8f1d5 0, transparent 28rem), linear-gradient(180deg, #f8fbf7 0, var(--bg) 46rem);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  a { color: var(--accent); }
+
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 2.25rem max(1.5rem, calc((100% - 970px) / 2)) 2rem;
+    background: linear-gradient(120deg, #0d3324, #1b5c43 64%, #277154);
+    color: white;
+  }
+  header::after { content:""; position:absolute; width:20rem; height:20rem; border-radius:50%; right:-7rem; top:-11rem; background:rgba(247,207,99,.2); box-shadow:-7rem 7rem 0 rgba(223,241,223,.07); }
+  header > * { position:relative; z-index:1; }
+  h1 { margin: 0 0 0.3rem; font-size: clamp(1.65rem, 3.5vw, 2.25rem); letter-spacing: -0.035em; }
+  .subtitle { color: #d8eee0; font-size: 1rem; max-width: 42rem; }
+  .flowplan-link {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: white;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+  }
+  .flowplan-link { cursor: default; }
+  .header-actions { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .header-actions .flowplan-link { margin-top:0; }
+  .install-app-btn { font:inherit; font-size:.9rem; color:var(--accent-deep); background:#fff; border:1px solid #fff; border-radius:999px; padding:.3rem .8rem; cursor:pointer; }
+  .install-app-btn[hidden] { display:none; }
+  .install-dialog { width:min(92vw,430px); color:var(--text); background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:0; box-shadow:0 24px 70px rgba(12,42,30,.22); }
+  .install-dialog::backdrop { background:rgba(12,35,27,.38); backdrop-filter:blur(2px); }
+  .install-dialog-inner { padding:1.25rem; }
+  .install-dialog h2 { margin:0 0 .3rem; }
+  .install-steps { margin:1rem 0; padding:0; list-style:none; display:grid; gap:.65rem; }
+  .install-steps li { display:grid; grid-template-columns:1.75rem 1fr; gap:.65rem; align-items:start; }
+  .install-steps strong { display:grid; place-items:center; width:1.75rem; height:1.75rem; border-radius:50%; background:var(--accent-soft); color:var(--accent-deep); }
+
+  .info-banner { max-width:970px; margin:.8rem auto 0; padding:.7rem .9rem; display:flex; align-items:center; gap:.7rem; color:var(--muted); background:rgba(255,255,255,.62); border:1px solid var(--border); border-radius:14px; font-size:.8rem; }
+  .info-mark { display:grid; place-items:center; flex:0 0 auto; width:1.55rem; height:1.55rem; border-radius:50%; background:var(--covered-bg); color:var(--covered); font-weight:800; }
+  .info-short { flex:1; }
+  .info-short strong { color:var(--text); }
+  .info-banner details { position:relative; flex:0 0 auto; }
+  .info-banner summary { cursor:pointer; color:var(--accent-deep); font-weight:700; list-style:none; }
+  .info-banner summary::-webkit-details-marker { display:none; }
+  .info-banner details[open] { flex-basis:100%; }
+  .info-banner details p { margin:.55rem 0 0; max-width:64ch; line-height:1.5; }
+
+  main { max-width: 1020px; margin: 0 auto; padding: 1.75rem 1.5rem 3.5rem; }
+
+  .app-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.45rem;
+    margin: 0 0 1.5rem;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel-soft);
+  }
+  .app-tab {
+    font: inherit;
+    font-weight: 650;
+    font-size: 0.88rem;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    padding: 0.72rem 0.8rem;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .app-tab.active { color: var(--accent-deep); background: var(--panel); box-shadow: 0 3px 8px rgba(25,49,39,.12); }
+  .view[hidden] { display: none; }
+  .view-intro { padding: 0.1rem 0 1rem; }
+  .view-intro h2 { margin: 0 0 0.2rem; font-size: 1.18rem; }
+  .view-intro p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .quiet-note { color: var(--muted); font-size: 0.9rem; }
+
+  /* ---------- shared card look ---------- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.35rem 1.5rem;
+    margin-bottom: 1.4rem;
+  }
+  .card h2 { margin: 0 0 0.6rem; font-size: 1.2rem; letter-spacing:-.02em; }
+  .eyebrow {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 1rem 0 0.4rem;
+    font-weight: 600;
+  }
+  .eyebrow:first-of-type { margin-top: 0.2rem; }
+
+  ul.plain { margin: 0; padding-left: 0; list-style: none; }
+
+  /* ---------- fade/scale-in, respects reduced motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .fade-in { animation: fadeIn 0.35s ease both; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .bar-fill { transition: width 0.5s ease; }
+    button, .checkitem, .flowplan-link { transition: background-color 0.15s ease, transform 0.1s ease; }
+  }
+
+  /* ---------- week nav ---------- */
+  nav.weeks { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  nav.weeks button {
+    font: inherit;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+  }
+  nav.weeks button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  nav.weeks button:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- motivation / progress card ---------- */
+  .motivation-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .stat-block { min-width: 130px; padding:0.85rem 1rem; border-radius:14px; background:var(--panel-soft); }
+  .stat-num { font-size: 1.85rem; font-weight: 800; color: var(--accent); line-height: 1; letter-spacing:-.05em; }
+  .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+  .streak-num { color: var(--covered); }
+  .weekly-goal-row { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 220px; padding:0.85rem 1rem; border-radius:14px; background:var(--panel-soft); }
+  .bar-track { flex: 1; height: 10px; border-radius: 999px; background: var(--panel-soft); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #6bbd69); }
+  .goal-input {
+    width: 3.2rem;
+    font: inherit;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: center;
+  }
+  .motivation-msg { font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; min-height: 1.3em; }
+
+  /* ---------- next step card ---------- */
+  .nextstep-card {
+    background: linear-gradient(135deg, #fef6d7, #fffdf7 58%, var(--accent-soft));
+    border: 1px solid #ebd98f;
+    position:relative;
+    overflow:hidden;
+  }
+  .nextstep-card::after { content:"✦"; position:absolute; right:1.2rem; top:.4rem; font-size:4rem; line-height:1; color:rgba(39,113,84,.12); }
+  .nextstep-kicker { font-size: 0.82rem; color: var(--accent); font-weight: 600; margin-bottom: 0.35rem; }
+  .nextstep-week { color: var(--muted); font-size: 0.8rem; margin: -0.1rem 0 0.55rem; }
+  .nextstep-text { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.9rem; }
+  .nextstep-type { font-size: 0.78rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .nextstep-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
+  .btn {
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); box-shadow:0 4px 10px rgba(39,113,84,.2); }
+  .btn:hover { filter: brightness(0.97); }
+  .btn:active { transform: scale(0.98); }
+  .nextstep-empty { color: var(--muted); font-size: 0.95rem; }
+
+  /* ---------- coverage / progress overview ---------- */
+  .overview-stats { display: grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
+  .overview-stats > div { padding:.8rem .9rem; background:var(--panel-soft); border-radius:12px; }
+  .overview-pct { font-size: 1.7rem; font-weight: 800; color: var(--accent); letter-spacing:-.05em; }
+  .overview-explainer { font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; }
+  .overview-label { font-size: 0.78rem; color: var(--muted); }
+
+  /* ---------- goals ---------- */
+  .goal { padding: 0.95rem 0; border-bottom: 1px dashed var(--border); }
+  .goal:last-child { border-bottom: none; }
+  .goal-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .goal-text { flex: 1; }
+  .goal-note { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .status-control { flex-shrink: 0; display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .status-control button {
+    font: inherit; font-size: 0.76rem; font-weight: 600; padding: 0.25rem 0.6rem;
+    border: none; background: var(--panel); color: var(--muted); cursor: pointer; border-left: 1px solid var(--border);
+  }
+  .status-control button:first-child { border-left: none; }
+  .status-control button.sel-covered { background: var(--covered-bg); color: var(--covered); }
+  .status-control button.sel-partly  { background: var(--partly-bg); color: var(--partly); }
+  .status-control button.sel-missing { background: var(--missing-bg); color: var(--missing); }
+
+  .selftest-toggle {
+    font-size: 0.78rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    padding: 0.35rem 0 0;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .selftest-panel {
+    margin-top: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--panel-soft);
+    border-radius: 10px;
+    font-size: 0.88rem;
+  }
+  .selftest-prompt { margin: 0 0 0.6rem; font-style: italic; color: var(--text); }
+  .selftest-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .selftest-actions button {
+    font: inherit; font-size: 0.78rem; font-weight: 600; padding: 0.3rem 0.65rem;
+    border-radius: 999px; border: 1px solid var(--border); background: var(--panel); cursor: pointer;
+  }
+  .selftest-actions button.sel-kan  { background: var(--covered-bg); color: var(--covered); border-color: var(--covered-bg); }
+  .selftest-actions button.sel-oeve { background: var(--partly-bg); color: var(--partly); border-color: var(--partly-bg); }
+  .selftest-actions button.sel-ikke { background: var(--missing-bg); color: var(--missing); border-color: var(--missing-bg); }
+  .selftest-result-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; }
+
+  /* ---------- activity checklist ---------- */
+  .checklist { margin: 0; padding: 0; list-style: none; }
+  .checkitem {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    padding: 0.4rem 0.3rem; border-radius: 8px;
+  }
+  .checkitem:hover { background: var(--panel-soft); }
+  .checkitem input[type="checkbox"] { margin-top: 0.2rem; width: 1.05rem; height: 1.05rem; accent-color: var(--covered); cursor: pointer; }
+  .checkitem label { cursor: pointer; flex: 1; }
+  .checkitem.done label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--border); }
+
+  .recommendation {
+    background: var(--panel-soft);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.95rem;
+  }
+
+  .claude-note { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1.5rem; }
+
+  /* ---------- celebration toast ---------- */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text);
+    color: white;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    #toast { transition: opacity 0.25s ease, transform 0.25s ease; }
+  }
+
+  /* ---------- quiz & eksamenstræning ---------- */
+  .quiz-modes { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .quiz-mode-btn {
+    font: inherit; font-size: 0.88rem; font-weight: 600;
+    padding: 0.5rem 1rem; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--panel); color: var(--text); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .quiz-mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-mode-badge {
+    font-size: 0.68rem; font-weight: 700; background: var(--covered-bg); color: var(--covered);
+    padding: 0.1rem 0.4rem; border-radius: 999px;
+  }
+  .quiz-mode-btn.active .quiz-mode-badge { background: rgba(255,255,255,0.25); color: white; }
+  .quiz-mode-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+
+  .question-card {
+    background: var(--panel-soft);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .question-kilde { font-size: 0.72rem; color: var(--muted); cursor: pointer; margin-bottom: 0.4rem; }
+  .question-kilde summary { cursor: pointer; }
+  .question-goal-tag { font-size: 0.72rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+  .question-scenario { font-size: 0.88rem; color: var(--muted); background: var(--panel); border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.6rem; }
+  .question-prompt { font-weight: 600; margin-bottom: 0.7rem; }
+
+  .option-list { display: flex; flex-direction: column; gap: 0.45rem; }
+  .option-btn {
+    font: inherit; text-align: left; padding: 0.55rem 0.8rem; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--panel); cursor: pointer;
+  }
+  .option-btn:hover { border-color: var(--accent); }
+  .option-btn.opt-correct { background: var(--covered-bg); border-color: var(--covered); }
+  .option-btn.opt-incorrect { background: var(--missing-bg); border-color: var(--missing); }
+  .option-btn.opt-unsure { background: var(--partly-bg); border-color: var(--partly); }
+  .option-btn[disabled] { cursor: default; opacity: 0.85; }
+
+  .flash-card {
+    background: var(--panel); border: 1px dashed var(--border); border-radius: 10px;
+    padding: 1rem; text-align: center; cursor: pointer; font-weight: 600; min-height: 3.2rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flash-card .flash-back { color: var(--accent); font-weight: 500; }
+
+  .match-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+  .match-term { flex: 1; min-width: 140px; font-weight: 600; }
+  .match-row select { font: inherit; padding: 0.4rem 0.5rem; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 180px; }
+  .match-row.row-correct select { border-color: var(--covered); background: var(--covered-bg); }
+  .match-row.row-incorrect select { border-color: var(--missing); background: var(--missing-bg); }
+
+  .question-feedback { margin-top: 0.7rem; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.88rem; }
+  .feedback-correct { background: var(--covered-bg); color: var(--covered); }
+  .feedback-incorrect { background: var(--missing-bg); color: var(--missing); }
+  .feedback-unsure { background: var(--partly-bg); color: var(--partly); }
+
+  .checklist-self { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.6rem 0; }
+  .checklist-self label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; }
+  .checklist-self input { margin-top: 0.2rem; accent-color: var(--covered); cursor: pointer; }
+  .reflection-box { width: 100%; font: inherit; font-size: 0.88rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.7rem; resize: vertical; min-height: 3.5rem; }
+
+  .tagigen-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    background: var(--accent-soft); border-radius: 10px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; font-size: 0.88rem;
+  }
+
+  .exam-timer-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .exam-timer-bar { flex: 1; height: 6px; border-radius: 999px; background: var(--panel); overflow: hidden; }
+  .exam-timer-fill { height: 100%; background: var(--partly); border-radius: 999px; }
+  .exam-progress { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.6rem; }
+  .exam-recap-stat { display: inline-block; margin-right: 1.5rem; margin-bottom: 0.5rem; }
+  .exam-disclaimer { font-size: 0.78rem; color: var(--muted); margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px dashed var(--border); }
+
+  /* ---------- exam preparation dashboard ---------- */
+  .exam-hero { background: linear-gradient(135deg, var(--accent-deep), #206448); color: white; border: 0; }
+  .exam-hero h2, .exam-hero .exam-kicker { color: white; }
+  .exam-hero p { color: #d9eee2; max-width: 42rem; }
+  .exam-kicker { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .exam-setup { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr); gap:1rem; align-items:end; margin-top:1rem; }
+  .exam-date-label { display:block; color:#d9eee2; font-size:.8rem; margin-bottom:.3rem; }
+  .exam-date { width:100%; max-width:16rem; font:inherit; color:var(--text); background:white; border:0; border-radius:10px; padding:.58rem .7rem; }
+  .exam-countdown { text-align:right; }
+  .exam-countdown strong { display:block; font-size:2rem; line-height:1; letter-spacing:-.05em; }
+  .readiness-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }
+  .readiness-stat { background:var(--panel-soft); border-radius:14px; padding:1rem; }
+  .readiness-stat strong { display:block; color:var(--accent); font-size:1.75rem; letter-spacing:-.05em; }
+  .readiness-list { display:grid; gap:.7rem; }
+  .readiness-row { display:grid; grid-template-columns:7rem 1fr 3rem; gap:.7rem; align-items:center; }
+  .readiness-row .bar-track { height:8px; }
+  .readiness-row strong { text-align:right; font-size:.82rem; }
+  .weak-list { display:grid; gap:.65rem; }
+  .weak-item { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; padding:.75rem .85rem; background:var(--panel-soft); border-radius:12px; }
+  .weak-item-text { flex:1; }
+  .weak-item small { display:block; color:var(--muted); margin-top:.15rem; }
+  .weak-group { border:1px solid transparent; border-radius:16px; overflow:hidden; }
+  .weak-group.open { border-color:var(--accent-soft); box-shadow:0 8px 24px rgba(34,83,62,.08); }
+  .weak-group.open .weak-item { border-radius:15px 15px 0 0; }
+  .weak-practice { padding:1rem; border-top:1px solid var(--border); background:#fff; }
+  .weak-practice .eyebrow { margin-top:.9rem; }
+  .study-presets { display:flex; gap:.5rem; flex-wrap:wrap; margin:.8rem 0; }
+  .focus-panel { background:linear-gradient(135deg,#fff8df,#fff); border:1px solid #ead998; border-radius:14px; padding:1rem; }
+  .focus-time { font-size:2.2rem; font-weight:800; letter-spacing:-.06em; color:var(--accent-deep); margin:.25rem 0; }
+  .review-queue { margin:0; padding:0; list-style:none; counter-reset:review; }
+  .review-queue li { counter-increment:review; display:grid; grid-template-columns:1.7rem 1fr auto; gap:.65rem; align-items:center; padding:.65rem 0; border-bottom:1px dashed var(--border); }
+  .review-queue li::before { content:counter(review); display:grid; place-items:center; width:1.55rem; height:1.55rem; border-radius:50%; background:var(--accent-soft); color:var(--accent-deep); font-size:.75rem; font-weight:700; }
+  .review-queue li:last-child { border-bottom:0; }
+  .review-state { font-size:.72rem; font-weight:700; color:var(--partly); }
+  .subject-row, .subject-nav { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .subject-nav { margin-top:-.65rem; }
+  .subject-chip, .subject-nav button { font:inherit; font-size:.8rem; font-weight:700; padding:.48rem .72rem; border-radius:999px; border:1px solid var(--border); background:var(--panel); color:var(--muted); cursor:pointer; }
+  .subject-chip.active, .subject-nav button.active { background:var(--accent); color:white; border-color:var(--accent); }
+  .subject-chip[disabled] { opacity:.5; cursor:not-allowed; }
+  .adaptive-top { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; margin-bottom:1rem; }
+  .adaptive-level { min-width:8rem; text-align:right; }
+  .adaptive-level strong { display:block; font-size:1.5rem; color:var(--accent); }
+  .adaptive-question { background:var(--panel-soft); border-radius:16px; padding:1.1rem; }
+  .adaptive-meta { display:flex; justify-content:space-between; gap:.75rem; color:var(--muted); font-size:.76rem; margin-bottom:.6rem; }
+  .adaptive-prompt { font-size:1.08rem; font-weight:700; margin-bottom:.8rem; }
+  .adaptive-feedback { margin-top:.8rem; padding:.75rem .85rem; border-radius:10px; }
+  .adaptive-feedback.correct { background:var(--covered-bg); color:var(--covered); }
+  .adaptive-feedback.wrong { background:var(--missing-bg); color:var(--missing); }
+  .adaptive-stats { display:flex; gap:1rem; flex-wrap:wrap; color:var(--muted); font-size:.82rem; margin-top:1rem; }
+  .case-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-top:1rem; }
+  .case-choice { text-align:left; font:inherit; color:var(--text); background:linear-gradient(155deg,var(--panel-soft),#fff); border:1px solid var(--border); border-radius:16px; padding:1rem; cursor:pointer; }
+  .case-choice:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .case-choice strong,.case-choice span,.case-choice small { display:block; }
+  .case-choice span { color:var(--accent-deep); font-size:.78rem; font-weight:700; margin:.35rem 0; }
+  .case-choice small { color:var(--muted); line-height:1.45; }
+  .cross-head,.plan-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+  .cross-head h2,.plan-head h2 { margin-bottom:.2rem; }
+  .cross-head > strong,.plan-time { flex:0 0 auto; color:var(--accent-deep); background:var(--accent-soft); border-radius:999px; padding:.4rem .65rem; font-size:.82rem; }
+  .cross-answer { min-height:150px; }
+  .daily-plan { background:linear-gradient(155deg,#fff,#f3f8f3); }
+  .plan-list { display:grid; gap:.6rem; margin-top:1rem; }
+  .plan-item { display:grid; grid-template-columns:2rem 1fr auto; align-items:center; gap:.75rem; padding:.75rem; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,.84); }
+  .plan-number { display:grid; place-items:center; width:2rem; height:2rem; border-radius:50%; color:white; background:var(--accent); font-weight:800; }
+  .plan-item strong,.plan-item span,.plan-item small { display:block; }
+  .plan-item small { color:var(--accent-deep); font-weight:700; }
+  .plan-item span { color:var(--muted); font-size:.8rem; margin-top:.15rem; }
+  .data-tools { padding:0; overflow:hidden; }
+  .data-tools > summary { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.2rem; cursor:pointer; list-style:none; }
+  .data-tools > summary::-webkit-details-marker { display:none; }
+  .data-tools > summary strong,.data-tools > summary small { display:block; }
+  .data-tools > summary small { color:var(--muted); margin-top:.15rem; font-weight:400; }
+  .data-tools-body { border-top:1px solid var(--border); padding:1rem 1.2rem 1.2rem; }
+  .file-btn { display:inline-flex; align-items:center; cursor:pointer; }
+  .file-btn input { position:absolute; width:1px; height:1px; opacity:0; }
+  .danger-quiet { color:var(--missing); }
+  .danger { background:var(--missing); color:white; border-color:var(--missing); }
+  .reset-confirm { margin-top:1rem; padding:.85rem; border-radius:12px; background:var(--missing-bg); color:var(--missing); }
+  .reset-confirm strong,.reset-confirm span { display:block; }
+  .reset-confirm span { font-size:.82rem; margin-top:.2rem; }
+  .compact-details { margin-top:.8rem; }
+  .compact-details summary { color:var(--accent-deep); font-weight:700; font-size:.84rem; cursor:pointer; padding:.35rem 0; }
+  .topic-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.55rem; margin:1rem 0; }
+  .topic-progress { border:1px solid var(--border); border-radius:12px; padding:.7rem; background:rgba(255,255,255,.75); }
+  .topic-progress span,.topic-progress strong,.topic-progress small { display:block; }
+  .topic-progress span { color:var(--muted); font-size:.72rem; min-height:2.2em; }
+  .topic-progress strong { color:var(--accent-deep); margin:.3rem 0 .1rem; }
+  .topic-progress small { color:var(--muted); font-size:.7rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .question-card { animation: fadeIn 0.25s ease both; }
+    .exam-timer-fill { transition: width 1s linear; }
+  }
+
+  @media (max-width: 560px) {
+    header, main { padding-left: 1rem; padding-right: 1rem; }
+    .info-banner { margin:.7rem 1rem 0; align-items:flex-start; flex-wrap:wrap; }
+    .info-banner details { margin-left:2.25rem; }
+    .motivation-grid { gap: 1rem; }
+    .goal-row { flex-direction: column; align-items: flex-start; }
+    .match-row { flex-direction: column; align-items: stretch; }
+    .overview-stats { grid-template-columns: 1fr; }
+    .stat-block, .weekly-goal-row { width:100%; }
+    .app-tabs { grid-template-columns:repeat(3,1fr); }
+    .app-tab { padding:.65rem .25rem; font-size:.76rem; }
+    .exam-setup, .readiness-grid { grid-template-columns:1fr; }
+    .exam-countdown { text-align:left; }
+    .readiness-row { grid-template-columns:5rem 1fr 2.8rem; }
+    .weak-item { flex-direction:column; }
+    .case-grid { grid-template-columns:1fr; }
+    .plan-item { grid-template-columns:2rem 1fr; }
+    .plan-item .btn { grid-column:2; justify-self:start; }
+    .topic-summary { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Studieoverblik — 3. semester</h1>
+  <div class="subtitle" id="subjectSubtitle">Din rolige base for ugen: ét skridt ad gangen, mod det officielle flowplan.</div>
+  <div class="header-actions">
+    <span class="flowplan-link" id="flowplanLink">Kildegrundlag: officielle flowplaner</span>
+    <button class="install-app-btn" id="installAppButton" hidden>Installer som app</button>
+  </div>
+</header>
+
+<div class="info-banner">
+  <span class="info-mark" aria-hidden="true">✓</span>
+  <div class="info-short"><strong>Privat og lokalt.</strong> Dine valg bliver kun gemt i denne browser.</div>
+  <details><summary>Om indhold og data</summary><p>Semesterstrukturen følger de officielle flowplaner for alle tre fag. Faktaspørgsmål bruges kun, hvor kilder er verificeret; øvrige mål trænes som selvøvelser. Intet sendes nogen steder, og åbne svar vurderes aldrig automatisk.</p></details>
+</div>
+
+<main>
+  <nav class="app-tabs" aria-label="Studieoverblik">
+    <button class="app-tab active" data-view="today">I dag</button>
+    <button class="app-tab" data-view="week">Ugen</button>
+    <button class="app-tab" data-view="quiz">Quiz</button>
+    <button class="app-tab" data-view="exam">Eksamen</button>
+    <button class="app-tab" data-view="all">Hele pensum</button>
+  </nav>
+  <nav class="subject-nav" id="subjectNav" aria-label="Vælg fag"></nav>
+
+  <section class="view" id="todayView">
+    <section class="card fade-in" id="motivationCard"></section>
+    <div id="todayContent"></div>
+  </section>
+
+  <section class="view" id="weekView" hidden>
+    <div class="view-intro"><h2>Ugens overblik</h2><p>Vælg en uge og markér kun det, du selv har arbejdet med.</p></div>
+    <nav class="weeks" id="weekNav"></nav>
+    <div id="weekContent"></div>
+  </section>
+
+  <section class="view" id="quizView" hidden>
+    <div class="view-intro"><h2>Quiz &amp; eksamenstræning</h2><p>Træn ét emne ad gangen. Ingen karakterer — kun øvelse og gentagelse.</p></div>
+    <div id="quizContent"></div>
+  </section>
+
+  <section class="view" id="examView" hidden>
+    <div id="examPrepContent"></div>
+  </section>
+
+  <section class="view" id="allView" hidden>
+    <div id="allCurriculumContent"></div>
+  </section>
+
+  <div class="claude-note">
+    <strong>Om status, selvtest og Claude:</strong> Claude kan foreslå status for et læringsmål, når det officielle flowplan faktisk sammenholdes med de noter, du selv giver adgang til. Appen påstår aldrig, at noter er vurderet, hvis sammenligningen ikke er udført. Selvtest retter ikke åbne svar og påstår ikke, at du kan stoffet — kun du sætter markeringerne.
+  </div>
+</main>
+
+<dialog class="install-dialog" id="iosInstallDialog">
+  <div class="install-dialog-inner">
+    <div class="nextstep-kicker">iPhone-app</div>
+    <h2>Føj til hjemmeskærmen</h2>
+    <p class="quiet-note">Åbn den offentlige appadresse i Safari og følg disse rolige trin:</p>
+    <ol class="install-steps">
+      <li><strong>1</strong><span>Tryk på <b>Del</b> i Safari.</span></li>
+      <li><strong>2</strong><span>Vælg <b>Føj til hjemmeskærm</b>.</span></li>
+      <li><strong>3</strong><span>Slå <b>Åbn som webapp</b> til, og tryk <b>Tilføj</b>.</span></li>
+    </ol>
+    <form method="dialog"><button class="btn btn-primary">Forstået</button></form>
+  </div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+// =========================================================================
+// STORAGE — every key lives under one prefix. Wrapped in try/catch: some
+// contexts (e.g. a sandboxed preview, private browsing in some browsers)
+// throw on any localStorage access rather than returning null/failing
+// quietly. Falls back to "not persisted" rather than crashing the page.
+// =========================================================================
+const PREFIX = "studieoverblik.";
+function storageGet(key) {
+  try { return localStorage.getItem(PREFIX + key); } catch (e) { return null; }
+}
+function storageSet(key, value) {
+  try { localStorage.setItem(PREFIX + key, value); return true; }
+  catch (e) {
+    toast("Kunne ikke gemme lokalt her (localStorage er ikke tilgængeligt i denne visning). Åbn filen direkte i en almindelig browser for at gemme dine valg.");
+    return false;
+  }
+}
+function storageGetJSON(key, fallback) {
+  const raw = storageGet(key);
+  if (!raw) return fallback;
+  try { return JSON.parse(raw); } catch (e) { return fallback; }
+}
+function storageSetJSON(key, value) { return storageSet(key, JSON.stringify(value)); }
+
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+// Monday-start ISO week key, e.g. "2026-W35" — used to group "this calendar week".
+function isoWeekKey(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = (d.getUTCDay() + 6) % 7; // Mon=0..Sun=6
+  d.setUTCDate(d.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+  const weekNum = 1 + Math.round(((d - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+  return d.getUTCFullYear() + "-W" + weekNum;
+}
+
+// =========================================================================
+// EXAMPLE / PROTOTYPE DATA — only a handful of weeks, for structure only.
+// Content (goals/reading/videos/tasks) is taken from the real flowplan.
+// Not touched by this feature; only the interaction layer around it changed.
+// =========================================================================
+const eoWeeks = [
+  {
+    id: "uge34a", label: "Uge 34", title: "Virksomhedens årsregnskab & bogføringssystem",
+    goals: [
+      { id: "uge34a-g1", text: "Forstå opbygningen af virksomhedens årsrapport, herunder årsregnskabet.", status: "covered", note: "eksempel — ikke en reel vurdering" },
+      { id: "uge34a-g2", text: "Opnå viden og forståelse for de grundlæggende registreringer (bogføring), der ligger til grund for årsregnskabet.", status: "partly", note: "eksempel — ikke en reel vurdering" },
+    ],
+    reading: ["ØS: Kap. 3 — Virksomhedens årsrapport", "ØS: Kap. 6 — Bogføring"],
+    videos: ["Resultatopgørelsen", "Balancen", "Sammenhæng mellem afsætning og omsætning", "Forskellen på variable og faste omkostninger", "Intro til bogføring"],
+    tasks: ["Selvstudieopgaver, kap. 3"],
+    recommendation: "Start med videoen \"Intro til bogføring\" — den lægger fundamentet for resten af ugens registreringsbegreber.",
+  },
+  {
+    id: "uge34b", label: "Uge 34 (2)", title: "Vurdering af årsrapporten",
+    goals: [
+      { id: "uge34b-g1", text: "Opnå viden og forståelse for grundlæggende forudsætninger for udarbejdelse af årsregnskabet.", status: "missing", note: "eksempel — ikke en reel vurdering" },
+    ],
+    reading: ["ØS: Kap. 8", "ØS: Kap. 5.5.4"],
+    videos: ["Intro", "Revisionspåtegning", "Pengestrømsopgørelse", "Corporate Governance", "ESG Rapportering"],
+    tasks: ["Opgave 8.2", "Opgave 8.6"],
+    recommendation: "Ingen note fundet for denne uge endnu — se videoen \"Revisionspåtegning\" og læs kap. 8 først, det er kernen i ugens pensum.",
+  },
+  {
+    id: "uge35", label: "Uge 35", title: "Rentabilitetsanalyse (Du-Pont-modellen)",
+    goals: [
+      { id: "uge35-g1", text: "Kunne udregne og kommentere relevante nøgletal i en rentabilitetsanalyse efter Du-Pont-modellen.", status: "partly", note: "eksempel — ikke en reel vurdering" },
+    ],
+    reading: ["ØS: Kap. 9 t.o.m. 9.6.1"],
+    videos: ["Rentabilitetsanalyse", "Sammenhæng mellem afsætning og omsætning"],
+    tasks: ["Opgave 9.2", "Opgave 9.4"],
+    recommendation: "Gense videoen \"Rentabilitetsanalyse\" og tjek om Du-Pont-identiteten (AG = OG × AOH) er noteret med et taleksempel.",
+  },
+  {
+    id: "uge37", label: "Uge 37", title: "Kapitaltilpasning, Soliditet & Likviditet",
+    goals: [
+      { id: "uge37-g1", text: "Kunne udregne og kommentere relevante nøgletal til kapitaltilpasningen efter Du Pont-modellen.", status: "covered", note: "baseret på faktisk sammenligning — se note" },
+      { id: "uge37-g2", text: "Kunne udregne og kommentere relevante nøgletal til belysning af en virksomheds soliditet og likviditet (inkl. kap. 5.3).", status: "partly", note: "baseret på faktisk sammenligning — kap. 5.3 mangler stadig, se note" },
+    ],
+    reading: ["ØS: Kap. 9.6.3", "ØS: Kap. 9.6.4", "ØS: Kap. 5.3"],
+    videos: ["Kapitaltilpasning", "Soliditet og Likviditet", "Balancestruktur"],
+    tasks: ["Opgaven \"Antikhuset\""],
+    recommendation: "Din note dækker kapitaltilpasning, soliditet og likviditet fint — men flagger selv, at kap. 5.3 (en del af ugens pensum) endnu ikke er læst/krydstjekket. Læs kap. 5.3 og opdatér noten, før ugen kan kaldes færdig.",
+    realNoteLink: null,
+  },
+  {
+    id: "uge39", label: "Uge 39", title: "Budgettering",
+    goals: [
+      { id: "uge39-g1", text: "Få færdigheder i udarbejdelsen af et resultat-, likviditets- og balancebudget samt cash flow.", status: "missing", note: "eksempel — ikke en reel vurdering" },
+      { id: "uge39-g2", text: "Kunne anvende resultatbudget-metoden til brug for eksamen (El-giganten-casen).", status: "missing", note: "eksempel — ikke en reel vurdering" },
+    ],
+    reading: ["ØS: Kap. 11", "ØS: Kap. 12"],
+    videos: ["Budget", "Budgeteksempel", "Budgetopfølgning", "Eksempel på budgetopfølgning"],
+    tasks: ["Resultatbudget — El-giganten-casen", "Forberedelse til OLA 3.1"],
+    recommendation: "Ingen note fundet for denne uge endnu — start med videoen \"Budget\" efterfulgt af \"Budgeteksempel\" før El-giganten-opgaven.",
+  },
+];
+
+const orgWeeks = [
+  { id:"org34teams", subjectId:"org", label:"Uge 34", title:"Teams & samarbejde", goals:[
+    { id:"org34teams-g1", text:"Forstå teamets betydning, fordele og ulemper samt forskellen på gruppe og team.", status:"missing", note:"ikke vurderet endnu" },
+    { id:"org34teams-g2", text:"Kunne anvende Belbin, Tuckman, team canvas og SMART til teamsamarbejde og konfliktløsning.", status:"missing", note:"ikke vurderet endnu" }
+  ], reading:["Organisation og ledelse: kap. 8"], videos:["Intro til Organisation og ledelse","Belbin — teamroller","Tuckman — fra gruppe til team"], tasks:["Belbin-selvtest","Team canvas og SMART-mål","Gruppemanual til OLA 3.1"], recommendation:"Start med Tuckmans faser og Belbins teamdefinition. Brug derefter modellerne konkret på din egen gruppe." },
+  { id:"org34strategy", subjectId:"org", label:"Uge 34 (2)", title:"Virksomhedens strategier og DNA", goals:[
+    { id:"org34strategy-g1", text:"Forstå strategi på strategisk, taktisk og operationelt niveau.", status:"missing", note:"ikke vurderet endnu" },
+    { id:"org34strategy-g2", text:"Kunne anvende generisk CRM-strategi, Porters generiske strategier, VRIO og strategilærred.", status:"missing", note:"ikke vurderet endnu" }
+  ], reading:["Organisation og ledelse: kap. 2, s. 27-35 og 44-46","Markedsføring: kap. 9, s. 253-256"], videos:["Intro til strategi","Mintzbergs generiske strategier","Intro til VRIO"], tasks:["Strategilærred","VRIO-analyse"], recommendation:"Kunne først skelne vision, mission og strategi. Træn derefter VRIO og strategilærred på en konkret virksomhed." },
+  { id:"org35", subjectId:"org", label:"Uge 35", title:"Organisationsstruktur", goals:[{ id:"org35-g1", text:"Forstå organisationsstruktur og kunne analysere fordele og ulemper ved forskellige organisationsformer.", status:"missing", note:"ikke vurderet endnu" }], reading:["Organisation og ledelse: kap. 3"], videos:["Strukturanalyse","Koordineringsmekanismer"], tasks:["Vurdér organisationsdesign for startup, ejendomsadministrator og bank"], recommendation:"Lav en sammenligning af tre organisationsdesigns og begrund, hvornår hvert design passer." },
+  { id:"org36", subjectId:"org", label:"Uge 36", title:"Kultur", goals:[{ id:"org36-g1", text:"Forstå organisationskultur, de fire kulturtyper og Hofstedes internationale kulturdimensioner.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 4: afsnit 4.1, 4.3, 4.4, 4.6, 4.7 og 4.11"], videos:["Hofstedes kulturmodel","International forretningskultur"], tasks:["Delanalyse og præsentation til OLA"], recommendation:"Kobl kulturtype og Hofstede til en konkret ledelsesudfordring." },
+  { id:"org37", subjectId:"org", label:"Uge 37", title:"Ledelse", goals:[{ id:"org37-g1", text:"Genkende ledertyper og anvende ledergitter, Adizes, situationsbestemt ledelse og Lewin.", status:"missing", note:"ikke vurderet endnu" }], reading:["Organisation og ledelse: kap. 6"], videos:["Adizes PAEI","Blake & Moutons ledergitter","Situationsbestemt ledelse"], tasks:["Reflektér over foretrukken ledertype"], recommendation:"Træn forskellen mellem ledermodellerne med korte cases." },
+  { id:"org38", subjectId:"org", label:"Uge 38", title:"Motivation & udvikling", goals:[{ id:"org38-g1", text:"Kunne anvende Herzberg, Maslow, Lawler og primadonnaledelse samt jobudvidelse og jobberigelse.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 5: s. 143-147, 150-154 og 161-171"], videos:["Intro til motivation","Lawlers motivationsteori","Jobdesign og motivation"], tasks:["Jobindex-persontypetest"], recommendation:"Sammenlign teorierne og forklar, hvilken handling en leder bør vælge i en case." },
+  { id:"org39", subjectId:"org", label:"Uge 39", title:"Selvledelse & værdibaseret ledelse", goals:[{ id:"org39-g1", text:"Forstå værdibaseret ledelse, selvledelse og Daniel Pinks Motivation 3.0.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 7","Kap. 5, afsnit 5.5"], videos:["Intro til selvledelse","Daniel Pink Motivation 3.0"], tasks:["OLA 3.1 endelig"], recommendation:"Forklar konsekvenserne af selvledelse for både medarbejder og leder." },
+  { id:"org40", subjectId:"org", label:"Uge 40", title:"Forandringer", goals:[{ id:"org40-g1", text:"Kunne anvende Kotter, Leavitt/STOP, forandringstyper og internt/eksternt forandringspres.", status:"missing", note:"ikke vurderet endnu" }], reading:["Organisation og ledelse: kap. 10"], videos:["The Iceberg Is Melting"], tasks:["Find forandringer i din branche og planlæg implementering"], recommendation:"Brug Kotters proces på et konkret løsningsforslag." },
+  { id:"org41csr", subjectId:"org", label:"Uge 41", title:"CSR & ESG", goals:[{ id:"org41csr-g1", text:"Forstå grønne strategier, Carrolls fire ansvarstyper samt mål for CSR, ESG og verdensmål.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 2, afsnit 2.5"], videos:[], tasks:["Kobl CSR/ESG til organisationens strategi"], recommendation:"Træn Carrolls ansvarstyper på en virksomhedscase." },
+  { id:"org41exam", subjectId:"org", label:"Uge 41 (2)", title:"Opsamling & eksamensforberedelse", goals:[{ id:"org41exam-g1", text:"Kunne vælge og anvende semestrets organisationsteorier i et løsningsforslag.", status:"missing", note:"ikke vurderet endnu" }], reading:["Alle læringsmål i flowplanen"], videos:[], tasks:["Forbered mundtlig tværfaglig eksamen"], recommendation:"Øv modelvalg: Hvilken teori forklarer bedst problemet, og hvilken handling følger af analysen?" }
+];
+
+const marketingWeeks = [
+  { id:"sm34pestel", subjectId:"marketing", label:"Uge 34", title:"PESTEL", goals:[{ id:"sm34pestel-g1", text:"Kunne analysere politiske, økonomiske, sociokulturelle, teknologiske, miljømæssige og lovgivningsmæssige omverdensforhold.", status:"missing", note:"ikke vurderet endnu" }], reading:["Markedsføring: kap. 2, s. 43-67"], videos:["PESTEL-analyse"], tasks:["Afgræns markedet og prioritér muligheder/trusler med kilder"], recommendation:"Træn først PESTEL-kategorierne. Lav derefter én veldokumenteret mulighed og trussel med konklusion." },
+  { id:"sm34porter", subjectId:"marketing", label:"Uge 34 (2)", title:"Porters Five Forces & de 7 P'er", goals:[{ id:"sm34porter-g1", text:"Kunne analysere branchekonkurrence med Porters Five Forces og samle muligheder og trusler.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 1, s. 28-33","Kap. 3, s. 69-85"], videos:["Porters Five Forces"], tasks:["Konkurrentanalyse og marketingmix"], recommendation:"Skeln branche fra marked, før du bruger Five Forces." },
+  { id:"sm35bmc", subjectId:"marketing", label:"Uge 35", title:"BMC, segmentering & kundesegmenter", goals:[{ id:"sm35bmc-g1", text:"Kunne analysere nøgleaktiviteter og kundesegmenter med segmentering, målgruppevalg og SMUK.", status:"missing", note:"ikke vurderet endnu" }], reading:["Markedsføring: kap. 14"], videos:["Business Model Canvas","Segmentering og målgruppevalg"], tasks:["BMC på valgt virksomhed"], recommendation:"Kobl segmenteringskriterier til valg af målgruppe og BMC-kundesegment." },
+  { id:"sm35value", subjectId:"marketing", label:"Uge 35 (2)", title:"Kundeværdi", goals:[{ id:"sm35value-g1", text:"Kunne analysere value proposition med customer journey mapping og købsadfærd.", status:"missing", note:"ikke vurderet endnu" }], reading:["Markedsføring: kap. 9 og 10"], videos:[], tasks:["Opsamling på PESTEL og Five Forces"], recommendation:"Forklar, hvordan et konkret touchpoint skaber eller ødelægger kundeværdi." },
+  { id:"sm36", subjectId:"marketing", label:"Uge 36", title:"Kanaler & kunderelationer", goals:[{ id:"sm36-g1", text:"Kunne analysere kanaler og kunderelationer med kunderejse, CRM-rejse, paid/owned/earned media og loyalitet.", status:"missing", note:"ikke vurderet endnu" }], reading:["Markedsføring: kap. 9 og 10"], videos:[], tasks:["Kortlæg CRM-rejsen"], recommendation:"Træn forskellen på kanaler, touchpoints og kunderelationer." },
+  { id:"sm37partners", subjectId:"marketing", label:"Uge 37", title:"Nøglepartnere", goals:[{ id:"sm37partners-g1", text:"Kunne analysere nøglepartnere ved hjælp af interessentanalyse.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 8, s. 225-229"], videos:[], tasks:["Interessentanalyse"], recommendation:"Prioritér interessenter efter betydning og påvirkningskraft." },
+  { id:"sm37valuechain", subjectId:"marketing", label:"Uge 37 (2)", title:"Værdikæde & nøgleressourcer", goals:[{ id:"sm37valuechain-g1", text:"Kunne analysere værdikædekompetencer og vurdere styrker og svagheder.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 8, s. 210-215"], videos:[], tasks:["Værdikædeanalyse"], recommendation:"Kobl hver aktivitet til en konkret styrke, svaghed eller kundeværdi." },
+  { id:"sm38", subjectId:"marketing", label:"Uge 38", title:"SWOT", goals:[{ id:"sm38-g1", text:"Kunne sammenfatte interne og eksterne analyser i en prioriteret SWOT.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 11, s. 289-297"], videos:["SWOT — 5 min"], tasks:["SWOT på Elgiganten"], recommendation:"Undgå rå lister: hvert SWOT-punkt skal kunne spores til en analyse." },
+  { id:"sm40", subjectId:"marketing", label:"Uge 40", title:"TOWS", goals:[{ id:"sm40-g1", text:"Kunne udvikle strategiske initiativer ved at kombinere SWOT-faktorer i TOWS.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 11, s. 297-299"], videos:["TOWS — 5 min"], tasks:["TOWS på Elgiganten"], recommendation:"Formulér initiativer som konkrete handlinger, ikke blot gentagelser af SWOT." },
+  { id:"sm41", subjectId:"marketing", label:"Uge 41", title:"Vækststrategier & eksamen", goals:[{ id:"sm41-g1", text:"Kunne anvende Ansoffs vækstmatrice og vælge vækststrategi ud fra TOWS-initiativer.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 12, s. 315-319"], videos:["Ansoffs vækstmatrice"], tasks:["Forbered løsningsforslag"], recommendation:"Øv koblingen TOWS → strategisk initiativ → Ansoff-vækstretning." }
+];
+
+eoWeeks.forEach(w => w.subjectId = "eo");
+const subjectCatalog = {
+  eo: { label:"Erhvervsøkonomi", short:"EØ", weeks:eoWeeks },
+  org: { label:"Organisation & ledelse", short:"O&L", weeks:orgWeeks },
+  marketing: { label:"Strategisk markedsføring", short:"SM", weeks:marketingWeeks }
+};
+let activeSubjectId = subjectCatalog[storageGet("activeSubject")] ? storageGet("activeSubject") : "eo";
+let weeks = subjectCatalog[activeSubjectId].weeks;
+
+function allSemesterWeeks() {
+  return Object.values(subjectCatalog).flatMap(subject => subject.weeks);
+}
+function findSemesterWeek(weekId) {
+  return allSemesterWeeks().find(week => week.id === weekId);
+}
+function activateSubject(subjectId, preferredWeekId) {
+  if (!subjectCatalog[subjectId]) return null;
+  activeSubjectId = subjectId;
+  weeks = subjectCatalog[subjectId].weeks;
+  storageSet("activeSubject", subjectId);
+  const saved = preferredWeekId || storageGet("selectedWeek." + subjectId);
+  const week = weeks.find(item => item.id === saved) || weeks[0];
+  renderSubjectNav();
+  renderNav(week.id);
+  renderWeek(week);
+  return week;
+}
+
+// =========================================================================
+// QUIZ & EKSAMENSTRÆNING — hand-verified question bank.
+//
+// Every question object below (basis/anvendelse per weekId) is paraphrased
+// (not copied as long passages) from an actually-inspected source, cited
+// via its own `source`/`sourceLabel` field. Coverage is uneven on purpose:
+// only the weeks listed here (currently uge37, org34teams, org34strategy,
+// sm34pestel) have hand-verified fact questions. Every OTHER learning goal
+// still gets practice via `goalDrillsForWeek()` further down — open,
+// ungrounded, ungraded self-reflection prompts templated from the goal's
+// own flowplan text, never presented as a verified fact. `getQuizBank()`
+// merges both tiers; the "Kilde" label on each question tells you which
+// tier you're looking at.
+//
+// uge37 specifically: paraphrased from the official EØ flowplan (Uge 37)
+// and subjects/semester-3/erhvervsoekonomi/notes/kapitaltilpasning-soliditet-likviditet.md.
+// That note flags that kap. 5.3 ("vertikal balancestruktur") hasn't been
+// read yet — so nothing about kap. 5.3's actual content is asked as a
+// graded question; the one question touching it (a4) is a pure, ungraded
+// self-reflection instead, not a fact claim.
+// =========================================================================
+const quizBanks = {
+  uge37: {
+    basis: [
+      {
+        id: "u37-b1", goalId: "uge37-g1", source: "note", type: "mc",
+        prompt: "Hvad måler \"kapitaltilpasning\" bedst?",
+        options: [
+          "Hvor stort virksomhedens overskud er",
+          "Virksomhedens evne til at tilpasse sin aktivitet til den kapital, der er bundet",
+          "Hvor meget egenkapital virksomheden har",
+          "Virksomhedens samlede gæld",
+        ],
+        correct: 1,
+        explanation: "Kapitaltilpasning handler om, hvor godt aktiviteten (omsætningen) matcher den kapital, der er bundet — fx i anlægsaktiver og varelager — ikke størrelsen af overskud eller gæld i sig selv.",
+      },
+      {
+        id: "u37-b2", goalId: "uge37-g1", source: "note", type: "tf",
+        prompt: "Jo flere gange en aktivpost \"omsættes\" pr. år, jo bedre er udnyttelsen — det gælder også for varekreditorer.",
+        correct: false,
+        explanation: "For varekreditorer (en gældspost) gælder det modsatte: en LAV omsætningshastighed er fordelagtig, fordi virksomheden så kan udskyde betalingen længere.",
+      },
+      {
+        id: "u37-b3", goalId: "uge37-g1", source: "note", type: "flash",
+        prompt: "Formel: omsætningshastighed for anlægsaktiver?",
+        back: "Omsætning / Samlede anlægsaktiver ultimo",
+      },
+      {
+        id: "u37-b4", goalId: "uge37-g2", source: "note", type: "flash",
+        prompt: "Formel: Soliditetsgrad?",
+        back: "(Egenkapital ultimo / Aktiver ultimo) × 100",
+      },
+      {
+        id: "u37-b5", goalId: "uge37-g2", source: "note", type: "flash",
+        prompt: "Formel: Anlægsgrad?",
+        back: "(Anlægsaktiver ultimo / Balancesum ultimo) × 100",
+      },
+      {
+        id: "u37-b6", goalId: "uge37-g2", source: "note", type: "mc",
+        prompt: "Hvorfor er kravet til Likviditetsgrad II typisk højere end til Likviditetsgrad I?",
+        options: [
+          "Fordi Likviditetsgrad II ikke medregner kortfristet gæld",
+          "Fordi varebeholdninger — som kun tælles med i grad II — tager tid at omsætte til likvide midler",
+          "Fordi Likviditetsgrad I kun bruges af store virksomheder",
+          "Der er ingen reel forskel i praksis",
+        ],
+        correct: 1,
+        explanation: "Likviditetsgrad II tæller varebeholdninger med i tælleren. Da varebeholdninger tager tid at sælge og omsætte til kontanter, skal grad II være højere for reelt at dække den kortfristede gæld til tiden.",
+      },
+      {
+        id: "u37-b7", goalId: "uge37-g2", source: "note", type: "match",
+        prompt: "Match nøgletal til formel.",
+        terms: ["Soliditetsgrad", "Anlægsgrad", "Likviditetsgrad I", "Likviditetsgrad II"],
+        defs: [
+          "(Egenkapital ultimo / Aktiver ultimo) × 100",
+          "(Anlægsaktiver ultimo / Balancesum ultimo) × 100",
+          "(Omsætningsaktiver ekskl. varebeholdninger ultimo / Kortfristede gældsforpligtelser ultimo) × 100",
+          "(Omsætningsaktiver ultimo / Kortfristede gældsforpligtelser ultimo) × 100",
+        ],
+        explanation: "Alle fire bruger balancens \"ultimo\"-tal, men ser på forskellige ting: soliditet på hele kapitalstrukturen, anlægsgrad på bindingen i anlægsaktiver, og de to likviditetsgrader på kort sigt — med og uden varebeholdninger.",
+      },
+    ],
+    anvendelse: [
+      {
+        id: "u37-a1", goalId: "uge37-g2", source: "note", type: "mc",
+        scenario: "Matas (2022/23): Soliditetsgrad = 53,5 %, Anlægsgrad = 82,8 %.",
+        prompt: "Hvad fortæller forskellen mellem de to nøgletal (82,8 − 53,5 = 29,3 procentpoint) bedst?",
+        options: [
+          "At Matas har for høj gæld til at kunne overleve",
+          "At anlægsaktiverne ikke er fuldt dækket af egenkapitalen alene — resten er finansieret af langfristet fremmedkapital",
+          "At Matas' likviditet er i akut fare",
+          "At beregningen må være forkert, da tallene ikke bør afvige",
+        ],
+        correct: 1,
+        explanation: "Når anlægsgraden er højere end soliditetsgraden, er en del af anlægsaktiverne finansieret af andet end egenkapital — hos Matas af langfristet fremmedkapital. Det er ikke i sig selv et faresignal.",
+      },
+      {
+        id: "u37-a2", goalId: "uge37-g2", source: "note", type: "self",
+        scenario: "Matas har relativt lave likviditetsgrader, men noten vurderer det ikke som et faresignal.",
+        prompt: "Forklar med dine egne ord hvorfor — brug gerne konkrete detaljer fra casen.",
+        checklist: [
+          "Nævner at næsten hele varesalget hos Matas sker kontant",
+          "Forbinder det kontante salg til et løbende likviditetsflow, uafhængigt af lagerbindingen",
+          "Konkluderer at lave likviditetsgrader derfor ikke automatisk er farlige — det afhænger af forretningsmodellen",
+        ],
+      },
+      {
+        id: "u37-a3", goalId: "uge37-g1", source: "note", type: "self",
+        scenario: "En virksomhed betaler sine leverandører meget hurtigt — dvs. har en høj omsætningshastighed for varekreditorer.",
+        prompt: "Er det umiddelbart en fordel eller en ulempe for virksomhedens likviditet — og hvorfor?",
+        checklist: [
+          "Genkender at varekreditorer er en undtagelse fra hovedreglen om omsætningshastighed",
+          "Konkluderer at en HØJ omsætningshastighed her er en ulempe, fordi virksomheden betaler hurtigere end nødvendigt",
+          "Forbinder det til at en lavere omsætningshastighed normalt er likviditetsmæssigt bedre for virksomheden selv",
+        ],
+      },
+      {
+        id: "u37-a4", goalId: "uge37-g2", source: "flowplan+note", type: "reflection",
+        prompt: "Din egen note flagger selv, at kap. 5.3 (en del af ugens pensum om \"vertikal balancestruktur\") endnu ikke er læst. Hvad forventer du, kap. 5.3 handler om ud fra emnet — og hvad vil du tjekke først, når du læser det?",
+      },
+    ],
+  },
+  org34teams: {
+    basis: [
+      { id:"ot-b1", goalId:"org34teams-g1", source:"slides", sourceLabel:"Teams & samarbejde-slides, modul 2", type:"mc", prompt:"Hvad kendetegner et team i Belbins definition?", options:["Personer, der arbejder hver for sig uden fælles resultat","Personer med et fælles mål og et konkret resultat, som samarbejder og er indbyrdes afhængige","En gruppe med samme jobtitel","Enhver gruppe med en formel leder"], correct:1, explanation:"Et team er bundet sammen af et fælles mål og resultat, samarbejde, koordinering og gensidig afhængighed." },
+      { id:"ot-b2", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"mc", prompt:"Hvilken rækkefølge følger Tuckmans klassiske teamfaser?", options:["Storming → Forming → Performing → Norming → Adjourning","Forming → Storming → Norming → Performing → Adjourning","Forming → Norming → Storming → Adjourning → Performing","Norming → Forming → Storming → Performing → Adjourning"], correct:1, explanation:"Modellen bevæger sig fra Forming gennem Storming og Norming til Performing og til sidst Adjourning." },
+      { id:"ot-b3", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"tf", prompt:"I Forming-fasen er teamets effektivitet og selvledelse typisk allerede høj.", correct:false, explanation:"Forming er præget af høflighed og orientering, men endnu lav effektivitet og selvledelse. Der er brug for tydelig retning og klare mål." },
+      { id:"ot-b4", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"mc", prompt:"Hvad er lederens vigtigste opgave i Storming-fasen?", options:["At ignorere uenigheder","At bygge tillid, tydeliggøre processen og hjælpe med konfliktløsning","At opløse teamet","Kun at måle slutresultatet"], correct:1, explanation:"Storming rummer konflikt og værdiforskelle. Lederen skal skabe tillid, procesklarhed og hjælpe teamet gennem konflikterne." },
+      { id:"ot-b5", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"tf", prompt:"I Norming-fasen bliver roller og ansvar i højere grad accepteret, og fælles beslutninger bliver lettere.", correct:true, explanation:"Norming er netop fasen, hvor arbejdsformer, roller og ansvar falder på plads." },
+      { id:"ot-b6", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"mc", prompt:"Hvilken fase er præget af optimal præstation, høj effektivitet og høj selvledelse?", options:["Forming","Storming","Performing","Adjourning"], correct:2, explanation:"Performing er den modne arbejdsfase, hvor teamet kan levere effektivt og selvstændigt." },
+      { id:"ot-b7", goalId:"org34teams-g2", source:"slides", sourceLabel:"Teams & samarbejde-slides, modul 2", type:"tf", prompt:"Jeg-budskaber, aktiv lytning og åbne spørgsmål kan være med til at nedtrappe en konflikt.", correct:true, explanation:"De flytter fokus fra personangreb til fakta, forståelse, problem og løsning." },
+      { id:"ot-b8", goalId:"org34teams-g1", source:"slides", sourceLabel:"Teams & samarbejde-slides, modul 2", type:"mc", prompt:"Hvilket er et eksempel på selvledelse i et team?", options:["Teamet venter på alle metodevalg fra lederen","Teamet fastsætter mål, fordeler arbejdet og vælger metode inden for sit mandat","Alle arbejder uden koordinering","Ingen tager ansvar for ressourcer"], correct:1, explanation:"Selvledende teams kan blandt andet sætte mål, vælge arbejdsmetode, fordele arbejde og disponere ressourcer." },
+    ],
+    anvendelse: [
+      { id:"ot-a1", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"mc", scenario:"En ny studiegruppe er venlig, men afventer retning og har endnu ikke fundet en arbejdsform.", prompt:"Hvilken fase passer bedst, og hvad bør ske nu?", options:["Performing; gruppen skal arbejde helt uden rammer","Forming; tydeliggør mål, retning og forventninger","Adjourning; afslut samarbejdet","Norming; undgå at tale om roller"], correct:1, explanation:"Høflighed, usikker arbejdsform og behov for retning peger på Forming." },
+      { id:"ot-a2", goalId:"org34teams-g2", source:"slides", sourceLabel:"Teams & samarbejde-slides, modul 2", type:"self", scenario:"To gruppemedlemmer er uenige og taler mere om hinandens personlighed end om opgaven.", prompt:"Hvordan ville du nedtrappe konflikten?", checklist:["Flytter fokus fra person til konkret problem og fakta","Bruger jeg-budskaber og åbne spørgsmål","Lytter aktivt og leder efter en fælles løsning" ] },
+      { id:"ot-a3", goalId:"org34teams-g2", source:"slides", sourceLabel:"Personprofiler og Tuckman-slides, modul 3", type:"self", scenario:"Gruppen er kommet igennem flere konflikter og begynder at acceptere roller og fælles spilleregler.", prompt:"Forklar, hvilken Tuckman-fase gruppen er i, og hvad der kan bringe den videre.", checklist:["Identificerer Norming","Nævner accepterede roller, ansvar og fælles beslutninger","Forklarer at tydelig koordinering og fokus på opgaven kan føre mod Performing"] },
+      { id:"ot-a4", goalId:"org34teams-g1", source:"slides", sourceLabel:"Teams & samarbejde-slides, modul 2", type:"mc", scenario:"Et team må selv vælge metode og fordele opgaver, men må ikke ændre budgettet.", prompt:"Hvad viser casen bedst?", options:["Teamet har ingen selvledelse","Selvledelse eksisterer inden for et aftalt mandat","Teamet er automatisk i Performing","Budgetter er irrelevante for teams"], correct:1, explanation:"Selvledelse betyder ikke fravær af rammer; teamet kan have reel beslutningsret på udvalgte områder." },
+    ]
+  },
+  org34strategy: {
+    basis: [
+      { id:"os-b1", goalId:"org34strategy-g1", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", prompt:"Hvad beskriver strategi bedst?", options:["En liste over gårsdagens resultater","En køreplan for, hvor virksomheden vil hen, og hvordan den vil komme derhen","Kun virksomhedens budget","En samling uafhængige daglige opgaver"], correct:1, explanation:"Strategi forbinder retning med vejen derhen." },
+      { id:"os-b2", goalId:"org34strategy-g1", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", prompt:"Hvilket niveau handler typisk om langsigtet retning for hele virksomheden?", options:["Operationelt niveau","Taktisk niveau","Strategisk niveau","Individniveau"], correct:2, explanation:"Det strategiske niveau fastlægger den overordnede, langsigtede retning." },
+      { id:"os-b3", goalId:"org34strategy-g1", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"match", prompt:"Match begreb og rolle.", terms:["Vision","Mission","Værdier"], defs:["Fremtidigt pejlemærke og ønsket retning","Virksomhedens formål og kerneforretning","Moralsk kompas for adfærd og valg"], explanation:"Vision peger fremad, mission forklarer formålet, og værdier guider adfærd og beslutninger." },
+      { id:"os-b4", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"tf", prompt:"En virksomhed kan frit vælge sin generiske CRM-strategi uden at tage hensyn til produkt, historie eller konkurrence.", correct:false, explanation:"Slidesene understreger, at den eksisterende strategi formes af blandt andet produkt, historik og konkurrencesituation og derfor først må analyseres." },
+      { id:"os-b5", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", prompt:"Hvad undersøger VRIO?", options:["Kun virksomhedens omsætning","Om en ressource er værdifuld, sjælden, svær at efterligne og organisatorisk udnyttet","Kun kundetilfredshed","Om en branche vokser"], correct:1, explanation:"VRIO står for Valuable, Rare, Inimitable og Organized." },
+      { id:"os-b6", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"tf", prompt:"En værdifuld og sjælden ressource giver ikke nødvendigvis en varig fordel, hvis konkurrenter let kan efterligne den.", correct:true, explanation:"Imiterbarhed er en central VRIO-test for, om fordelen kan holde." },
+      { id:"os-b7", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", prompt:"Hvad er forskellen på differentiering og positionering?", options:["Der er ingen forskel","Differentiering skaber relevante forskelle i tilbuddet; positionering handler om den ønskede plads i kundens bevidsthed","Positionering handler kun om pris","Differentiering handler kun om reklame"], correct:1, explanation:"Differentiering handler om selve forskellen, mens positionering handler om, hvordan markedet skal opfatte tilbuddet." },
+      { id:"os-b8", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"flash", prompt:"Hvad står VRIO for?", back:"Valuable, Rare, Inimitable, Organized — værdifuld, sjælden, svær at efterligne og organisatorisk udnyttet." },
+    ],
+    anvendelse: [
+      { id:"os-a1", goalId:"org34strategy-g1", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", scenario:"Ledelsen beslutter en treårig markedsretning. En afdelingschef omsætter den til en årsplan, og medarbejderne planlægger næste uges aktiviteter.", prompt:"Hvilken rækkefølge af niveauer ses?", options:["Operationelt → strategisk → taktisk","Strategisk → taktisk → operationelt","Taktisk → operationelt → strategisk","Vision → værdier → mission"], correct:1, explanation:"Langsigtet retning er strategisk, afdelingens omsætning er taktisk, og den konkrete ugeplan er operationel." },
+      { id:"os-a2", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"mc", scenario:"En ressource skaber kundeværdi og er sjælden, men virksomheden har ingen processer til at udnytte den.", prompt:"Hvilken VRIO-dimension svigter tydeligst?", options:["Valuable","Rare","Inimitable","Organized"], correct:3, explanation:"Uden struktur, processer og organisering kan virksomheden ikke høste værdien af ressourcen." },
+      { id:"os-a3", goalId:"org34strategy-g2", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"self", prompt:"Vælg en virksomhed og lav en kort VRIO-vurdering af én konkret ressource.", checklist:["Navngiver en konkret ressource","Vurderer alle fire VRIO-led med begrundelse","Konkluderer hvilken type konkurrencemæssig fordel ressourcen kan give"] },
+      { id:"os-a4", goalId:"org34strategy-g1", source:"slides", sourceLabel:"Virksomhedens strategi-slides, modul 1", type:"self", prompt:"Forklar vision, mission og værdier med ét sammenhængende virksomhedseksempel.", checklist:["Vision beskriver ønsket fremtid","Mission beskriver formål og kerneforretning","Værdier kobles til konkrete valg eller adfærd"] },
+    ]
+  },
+  sm34pestel: {
+    basis: [
+      { id:"sp-b1", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", prompt:"Hvad analyserer PESTEL primært?", options:["Interne ressourcer","Makroforhold i den eksterne omverden, som virksomheden ikke selv kontrollerer","Kun konkurrenternes priser","Kun virksomhedens kunder"], correct:1, explanation:"PESTEL strukturerer eksterne makroforhold, der kan påvirke virksomheden." },
+      { id:"sp-b2", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"match", prompt:"Match PESTEL-led og eksempel.", terms:["Political","Economic","Social","Technological","Environmental","Legal"], defs:["Politisk stabilitet og offentlig regulering","Renter, inflation og konjunkturer","Demografi, livsstil og værdier","Ny teknologi og digital udvikling","Klima, ressourcer og miljøkrav","Love og juridiske krav"], explanation:"Kategorierne hjælper med at placere og prioritere omverdensforhold systematisk." },
+      { id:"sp-b3", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"tf", prompt:"En god PESTEL bør give alle seks kategorier lige meget plads, uanset problemstillingen.", correct:false, explanation:"Faktorer skal prioriteres efter relevans for problemstillingen; ikke alle kategorier er lige vigtige hver gang." },
+      { id:"sp-b4", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", prompt:"Hvad bør en stærk PESTEL-analyse gøre ud over at nævne en faktor?", options:["Kun gentage overskriften","Dokumentere, vurdere betydningen og argumentere for konsekvensen","Undgå alle kilder","Kun beskrive fortiden"], correct:1, explanation:"En faktor skal underbygges og omsættes til en vurdering af dens strategiske betydning." },
+      { id:"sp-b5", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"tf", prompt:"Den geografiske, markedsmæssige, produktmæssige og tidsmæssige afgrænsning bør være konsistent gennem analysen.", correct:true, explanation:"En skiftende afgrænsning gør resultaterne usammenlignelige og konklusionen uklar." },
+      { id:"sp-b6", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", prompt:"Hvilken kilde er normalt stærkest som dokumentation for en samfundstendens?", options:["En udokumenteret kommentar","Aktuel ekstern statistik fra en pålidelig kilde","Virksomhedens reklameslogan","En gammel intern antagelse"], correct:1, explanation:"Aktuelle, faktuelle og eksterne data er normalt bedst til at dokumentere omverdensudvikling." },
+      { id:"sp-b7", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"tf", prompt:"En årsrapport kan være nyttig, men den er virksomhedens egen fortolkning og bør ikke altid stå alene som ekstern dokumentation.", correct:true, explanation:"Virksomhedens rapport er en relevant kilde til virksomhedens syn, men ikke nødvendigvis neutral dokumentation for omverdenen." },
+      { id:"sp-b8", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", prompt:"Hvad bør konklusionen på en PESTEL især fremhæve?", options:["Alle fund i tilfældig rækkefølge","De vigtigste muligheder og trusler for den afgrænsede virksomhed og problemstilling","Kun interne styrker","En facitliste uden argumentation"], correct:1, explanation:"PESTEL skal munde ud i prioriterede eksterne muligheder og trusler." },
+    ],
+    anvendelse: [
+      { id:"sp-a1", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", scenario:"Nationalbanken hæver renten, og husholdningernes finansieringsomkostninger stiger.", prompt:"Hvilken PESTEL-kategori er mest direkte?", options:["Political","Economic","Social","Environmental"], correct:1, explanation:"Renter og finansieringsvilkår er økonomiske makroforhold." },
+      { id:"sp-a2", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"mc", scenario:"Nye bindende regler kræver tydeligere samtykke ved digital markedsføring.", prompt:"Hvilken kategori er mest direkte?", options:["Technological","Legal","Social","Environmental"], correct:1, explanation:"Bindende regler og lovkrav hører primært under Legal, selv om de også kan påvirke teknologi og kundeadfærd." },
+      { id:"sp-a3", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"self", scenario:"Du undersøger en dansk detailvirksomheds muligheder de næste tre år.", prompt:"Formulér én stærk PESTEL-faktor med kilde, konsekvens og konklusion.", checklist:["Afgrænser geografi, marked og tid","Bruger en aktuel ekstern og pålidelig kilde","Forklarer konkret påvirkning og konkluderer mulighed eller trussel"] },
+      { id:"sp-a4", goalId:"sm34pestel-g1", source:"slides", sourceLabel:"Strategisk markedsføring, PESTEL-slides, modul 1", type:"self", prompt:"Forklar forskellen mellem blot at beskrive en trend og at analysere den strategisk.", checklist:["Beskrivelse fortæller hvad der sker","Analyse forklarer hvorfor det er relevant for virksomheden","Vurderer retning, betydning og mulighed/trussel i den valgte afgrænsning"] },
+    ]
+  },
+};
+
+// Every flowplan week is trainable. Inspected notes/slides use fixed factual
+// questions above; the remaining goals get honest, self-assessed exam drills
+// derived from the wording of the official learning goal itself.
+function goalDrillsForWeek(week) {
+  const promptTemplates = [
+    goal => `Forklar med dine egne ord: ${goal.text}`,
+    goal => `Lav et konkret eksempel, en beregning eller en kort case, der viser: ${goal.text}`,
+    goal => `Du møder dette læringsmål i en eksamenscase: ${goal.text} Hvad analyserer du først, og hvad konkluderer du?`,
+    goal => `Hvilke oplysninger eller observationer skal du bruge for at arbejde fagligt med: ${goal.text}`,
+    goal => `Hvad er en sandsynlig fejlslutning eller faldgrube ved dette læringsmål, og hvordan undgår du den?`,
+  ];
+  return week.goals.flatMap(goal => promptTemplates.map((makePrompt, index) => ({
+    id: `drill-${goal.id}-${index + 1}`,
+    goalId: goal.id,
+    source: "flowplan",
+    sourceLabel: `${subjectCatalog[week.subjectId].label} · officielt flowplan · ${week.label}`,
+    type: "self",
+    prompt: makePrompt(goal),
+    checklist: index === 0
+      ? ["Bruger centrale fagbegreber", "Forklarer sammenhængen — ikke kun en definition", "Afslutter med en klar pointe"]
+      : index === 1
+        ? ["Eksemplet er konkret", "Kobler tydeligt tilbage til læringsmålet", "Forklarer hvad resultatet betyder"]
+        : index === 2
+          ? ["Vælger en relevant fremgangsmåde eller model", "Anvender den på casen", "Konkluderer og nævner en vigtig begrænsning"]
+          : index === 3
+            ? ["Skelner mellem nødvendige og nyttige oplysninger", "Forklarer hvordan oplysningerne bruges", "Nævner kildekvalitet eller afgrænsning"]
+            : ["Beskriver en konkret fejl", "Forklarer hvorfor den giver et dårligt svar", "Viser hvordan svaret kan forbedres"],
+  })));
+}
+
+function getQuizBank(weekId) {
+  const week = findSemesterWeek(weekId);
+  if (!week) return null;
+  const verified = quizBanks[weekId] || { basis: [], anvendelse: [] };
+  const drills = goalDrillsForWeek(week);
+  return {
+    basis: [...verified.basis, ...drills.filter((_, index) => index % 5 < 2)],
+    anvendelse: [...verified.anvendelse, ...drills.filter((_, index) => index % 5 >= 2)],
+  };
+}
+
+// =========================================================================
+// LEARNING-GOAL STATUS (covered / partly / missing) — unchanged model.
+// =========================================================================
+const statusLabel = { covered: "Dækket", partly: "Delvist", missing: "Mangler" };
+const statusValue = { covered: 1, partly: 0.5, missing: 0 };
+
+function getStoredStatus(goalId) { return storageGet("status." + goalId); }
+function setStoredStatus(goalId, status) { storageSet("status." + goalId, status); }
+function currentStatus(goal) { return getStoredStatus(goal.id) || goal.status; }
+
+function computeCoverage(week) {
+  const counts = { covered: 0, partly: 0, missing: 0 };
+  let sum = 0;
+  week.goals.forEach(g => { const s = currentStatus(g); counts[s]++; sum += statusValue[s]; });
+  const pct = week.goals.length ? Math.round((sum / week.goals.length) * 100) : 0;
+  return { pct, counts };
+}
+
+// =========================================================================
+// ACTIVITY CHECKLIST (reading / videos / tasks) — manual only, never
+// inferred automatically from anything else on the page.
+// =========================================================================
+function activityId(week, type, index) { return week.id + "-" + type + "-" + index; }
+function isActivityDone(id) { return storageGet("activity." + id) === "1"; }
+function setActivityDone(id, done) {
+  storageSet("activity." + id, done ? "1" : "0");
+  if (done) logCompletion();
+}
+function weekActivityIds(week) {
+  const ids = [];
+  week.reading.forEach((_, i) => ids.push(activityId(week, "reading", i)));
+  week.videos.forEach((_, i) => ids.push(activityId(week, "video", i)));
+  week.tasks.forEach((_, i) => ids.push(activityId(week, "task", i)));
+  return ids;
+}
+function weekActivityProgress(week) {
+  const ids = weekActivityIds(week);
+  const done = ids.filter(isActivityDone).length;
+  return { done, total: ids.length };
+}
+
+// =========================================================================
+// COMPLETION LOG — one entry per activity completed, used only to compute
+// the streak (distinct calendar days) and the weekly-goal count (this
+// calendar week's total completions). Never removed on uncheck, so an
+// accidental un-check doesn't erase a day you already showed up for.
+// =========================================================================
+function logCompletion() {
+  const log = storageGetJSON("completionLog", []);
+  log.push({ date: todayISO() });
+  storageSetJSON("completionLog", log);
+}
+function currentStreak() {
+  const log = storageGetJSON("completionLog", []);
+  const days = new Set(log.map(e => e.date));
+  let streak = 0;
+  let cursor = new Date();
+  // if nothing logged today yet, a streak can still be "alive" through yesterday
+  if (!days.has(todayISO())) cursor.setDate(cursor.getDate() - 1);
+  while (true) {
+    const key = cursor.getFullYear() + "-" + String(cursor.getMonth() + 1).padStart(2, "0") + "-" + String(cursor.getDate()).padStart(2, "0");
+    if (days.has(key)) { streak++; cursor.setDate(cursor.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+function completionsThisCalendarWeek() {
+  const log = storageGetJSON("completionLog", []);
+  const thisWeek = isoWeekKey(new Date());
+  return log.filter(e => isoWeekKey(new Date(e.date + "T00:00:00")) === thisWeek).length;
+}
+function getWeeklyGoal() {
+  const n = parseInt(storageGet("weeklyGoal"), 10);
+  return Number.isFinite(n) && n > 0 ? n : 3;
+}
+function setWeeklyGoal(n) { storageSet("weeklyGoal", String(Math.max(1, Math.min(50, n || 3)))); }
+
+// =========================================================================
+// SELF-TEST — "Kan forklare" / "Skal øve" / "Ikke endnu", per goal.
+// Never generates an answer, never grades — purely a self-report.
+// =========================================================================
+const selftestPrompts = [
+  "Forklar dette med dine egne ord.",
+  "Kan du lave et eksempel eller en beregning?",
+  "Hvad ville du kommentere på i en case?",
+];
+function promptFor(goalId) {
+  // stable-but-varied pick per goal, not random on every render
+  let h = 0; for (const c of goalId) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return selftestPrompts[h % selftestPrompts.length];
+}
+const selftestLabel = { kan: "Kan forklare", oeve: "Skal øve", ikke: "Ikke endnu" };
+function getSelftest(goalId) { return storageGet("selftest." + goalId); }
+function setSelftest(goalId, result) { storageSet("selftest." + goalId, result); }
+
+// =========================================================================
+// QUIZ ENGINE — Basis / Anvendelse / Eksamenstræning for weeks that have a
+// question bank (only Uge 37 right now — see quizBanks above). Reuses the
+// same "Kan forklare / Skal øve / Ikke endnu" self-report vocabulary as the
+// goal self-tests, for consistency. Nothing here is a claim that Claude
+// graded anything: auto-checkable questions compare to a fixed correct
+// answer defined in the data above; everything else is the user's own
+// self-report.
+// =========================================================================
+function allQuizQuestions(weekId) {
+  const bank = getQuizBank(weekId);
+  if (!bank) return [];
+  return [...bank.basis, ...bank.anvendelse];
+}
+function findQuestion(weekId, qid) { return allQuizQuestions(weekId).find(q => q.id === qid); }
+
+function getQuizResult(qid) { return storageGet("quiz.result." + qid); }          // "correct" | "incorrect" | "unsure"
+function setQuizResult(qid, result) { storageSet("quiz.result." + qid, result); }
+function getSelfMark(qid) { return storageGet("quiz.selfmark." + qid); }          // "kan" | "oeve" | "ikke"
+function setSelfMark(qid, mark) { storageSet("quiz.selfmark." + qid, mark); }
+function getChecklistState(qid, len) { return storageGetJSON("quiz.checklist." + qid, new Array(len).fill(false)); }
+function setChecklistState(qid, arr) { storageSetJSON("quiz.checklist." + qid, arr); }
+// Same pattern, reused for any other checkbox-list that needs a stable per-item
+// state: cross-subject exam rubrics and the adaptive-quiz self-checklist.
+function getRubricState(key, len) { return storageGetJSON(key, new Array(len).fill(false)); }
+function setRubricState(key, arr) { storageSetJSON(key, arr); }
+function isReflected(qid) { return storageGet("quiz.reflected." + qid) === "1"; }
+function setReflected(qid, text) { storageSet("quiz.reflected." + qid, "1"); storageSet("quiz.reflectionText." + qid, text || ""); }
+function getReflectionText(qid) { return storageGet("quiz.reflectionText." + qid) || ""; }
+function getMatchAnswers(qid, len) { return storageGetJSON("quiz.match." + qid, new Array(len).fill(-1)); }
+function setMatchAnswers(qid, arr) { storageSetJSON("quiz.match." + qid, arr); }
+
+function isAnswered(q) {
+  if (q.type === "mc" || q.type === "tf") return getQuizResult(q.id) != null;
+  if (q.type === "match") return getMatchAnswers(q.id, q.terms.length).some(v => v !== -1) && storageGet("quiz.matchChecked." + q.id) === "1";
+  if (q.type === "self") return getSelfMark(q.id) != null;
+  if (q.type === "reflection") return isReflected(q.id);
+  if (q.type === "flash") return quizUI.flashSeen.has(q.id);
+  return false;
+}
+
+function basisCorrectCount(weekId) {
+  const bank = getQuizBank(weekId);
+  if (!bank) return 0;
+  return bank.basis.filter(q => {
+    if (q.type === "mc" || q.type === "tf") return getQuizResult(q.id) === "correct";
+    return isAnswered(q);
+  }).length;
+}
+function anvendelseEngagedCount(weekId) {
+  const bank = getQuizBank(weekId);
+  if (!bank) return 0;
+  return bank.anvendelse.filter(q => isAnswered(q)).length;
+}
+function needsRevisit(weekId) {
+  return allQuizQuestions(weekId).filter(q => {
+    if (q.type === "mc" || q.type === "tf") { const r = getQuizResult(q.id); return r === "incorrect" || r === "unsure"; }
+    if (q.type === "self") { const m = getSelfMark(q.id); return m === "oeve" || m === "ikke"; }
+    return false;
+  });
+}
+
+const quizUI = { mode: "basis", flashSeen: new Set(), exam: null };
+
+// ---- question renderers: each returns HTML for one question card -------
+function goalTag(week, goalId) {
+  const g = week.goals.find(g => g.id === goalId);
+  return g ? g.text : "";
+}
+function kildeLabel(source) {
+  if (source === "note") return "den afledte note om kapitaltilpasning, soliditet & likviditet";
+  if (source === "flowplan") return "flowplanens læringsmål for Uge 37";
+  return "flowplanens læringsmål + den afledte note";
+}
+function questionShell(week, q, innerHtml) {
+  return `
+    <div class="question-card" data-qid="${q.id}">
+      <div class="question-goal-tag">${goalTag(week, q.goalId)}</div>
+      ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ""}
+      <div class="question-prompt">${q.prompt}</div>
+      ${innerHtml}
+      <details class="question-kilde"><summary>Kilde</summary>${q.sourceLabel || kildeLabel(q.source)}</details>
+    </div>`;
+}
+
+function renderMC(week, q) {
+  const result = getQuizResult(q.id);
+  const opts = q.options.map((opt, i) => {
+    let cls = "";
+    if (result) {
+      if (i === q.correct) cls = "opt-correct";
+      else if (result === "incorrect" && storageGet("quiz.picked." + q.id) === String(i)) cls = "opt-incorrect";
+    }
+    return `<button class="option-btn ${cls}" data-action="quiz-mc" data-qid="${q.id}" data-i="${i}" ${result ? "disabled" : ""}>${opt}</button>`;
+  }).join("");
+  const unsureCls = result === "unsure" ? "opt-unsure" : "";
+  const unsureBtn = `<button class="option-btn ${unsureCls}" data-action="quiz-mc" data-qid="${q.id}" data-i="-1" ${result ? "disabled" : ""}>Jeg er ikke sikker</button>`;
+  const feedback = result ? renderMCFeedback(q, result) : "";
+  return questionShell(week, q, `<div class="option-list">${opts}${unsureBtn}</div>${feedback}`);
+}
+function renderMCFeedback(q, result) {
+  if (result === "unsure") return `<div class="question-feedback feedback-unsure">Helt fint at være usikker — den lægges på din "Tag igen"-liste. Rigtigt svar: ${q.options[q.correct]}. ${q.explanation}</div>`;
+  if (result === "correct") return `<div class="question-feedback feedback-correct">Rigtigt. ${q.explanation}</div>`;
+  return `<div class="question-feedback feedback-incorrect">Ikke helt — rigtigt svar: ${q.options[q.correct]}. ${q.explanation}</div>`;
+}
+
+function renderTF(q, week) {
+  const result = getQuizResult(q.id);
+  const picked = storageGet("quiz.picked." + q.id);
+  const mk = (label, val) => {
+    let cls = "";
+    if (result && result !== "unsure") { if (String(val) === String(q.correct)) cls = "opt-correct"; else if (picked === String(val)) cls = "opt-incorrect"; }
+    return `<button class="option-btn ${cls}" data-action="quiz-tf" data-qid="${q.id}" data-val="${val}" ${result ? "disabled" : ""}>${label}</button>`;
+  };
+  const unsureCls = result === "unsure" ? "opt-unsure" : "";
+  const opts = `<div class="option-list">${mk("Sandt", "true")}${mk("Falsk", "false")}<button class="option-btn ${unsureCls}" data-action="quiz-tf" data-qid="${q.id}" data-val="unsure" ${result ? "disabled" : ""}>Jeg er ikke sikker</button></div>`;
+  const feedback = result ? renderMCFeedback({ options: [q.correct ? "Sandt" : "Falsk", ""], correct: 0, explanation: q.explanation }, result) : "";
+  return questionShell(week, q, opts + feedback);
+}
+
+function renderFlash(week, q) {
+  const seen = quizUI.flashSeen.has(q.id);
+  const inner = `
+    <div class="flash-card" data-action="quiz-flash" data-qid="${q.id}">
+      ${seen ? `<span class="flash-back">${q.back}</span>` : "Klik for at vise svaret"}
+    </div>
+    ${seen ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;">Prøv at sige/skrive formlen selv, før du kigger — det er det, der virker.</div>` : ""}
+  `;
+  return questionShell(week, q, inner);
+}
+
+function renderMatch(week, q) {
+  const answers = getMatchAnswers(q.id, q.terms.length);
+  const checked = storageGet("quiz.matchChecked." + q.id) === "1";
+  const rows = q.terms.map((term, i) => {
+    const rowState = checked ? (answers[i] === i ? "row-correct" : "row-incorrect") : "";
+    const options = q.defs.map((d, di) => `<option value="${di}" ${answers[i] === di ? "selected" : ""}>${d.slice(0, 60)}${d.length > 60 ? "…" : ""}</option>`).join("");
+    return `
+      <div class="match-row ${rowState}">
+        <div class="match-term">${term}</div>
+        <select data-action="quiz-match-pick" data-qid="${q.id}" data-i="${i}" ${checked ? "disabled" : ""}>
+          <option value="-1">Vælg definition…</option>${options}
+        </select>
+      </div>`;
+  }).join("");
+  const checkBtn = checked ? "" : `<button class="btn btn-primary" data-action="quiz-match-check" data-qid="${q.id}">Tjek svar</button>`;
+  const feedback = checked
+    ? `<div class="question-feedback ${answers.every((a, i) => a === i) ? "feedback-correct" : "feedback-incorrect"}">${answers.every((a, i) => a === i) ? "Alle rigtige!" : "Nogle par er endnu ikke rigtige — se markeringerne ovenfor."} ${q.explanation}</div>`
+    : "";
+  return questionShell(week, q, rows + checkBtn + feedback);
+}
+
+function renderSelf(week, q) {
+  const checklistState = getChecklistState(q.id, q.checklist.length);
+  const mark = getSelfMark(q.id);
+  const rows = q.checklist.map((point, i) => `
+    <label><input type="checkbox" data-action="quiz-checklist" data-qid="${q.id}" data-i="${i}" ${checklistState[i] ? "checked" : ""}> ${point}</label>
+  `).join("");
+  const markButtons = ["kan", "oeve", "ikke"].map(m => `
+    <button class="${mark === m ? "sel-" + m : ""}" data-action="quiz-selfmark" data-qid="${q.id}" data-mark="${m}">${selftestLabel[m]}</button>
+  `).join("");
+  const inner = `
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem;">Tænk (eller skriv) dit eget svar først — sammenlign så med tjeklisten herunder. Ingen facit, ingen automatisk rettelse.</div>
+    <div class="checklist-self">${rows}</div>
+    <div class="selftest-actions">${markButtons}</div>
+    ${mark ? `<div class="selftest-result-note">Din egen vurdering: <strong>${selftestLabel[mark]}</strong>.</div>` : ""}
+  `;
+  return questionShell(week, q, inner);
+}
+
+function renderReflection(week, q) {
+  const done = isReflected(q.id);
+  const text = getReflectionText(q.id);
+  const inner = `
+    <textarea class="reflection-box" data-qid="${q.id}" placeholder="Skriv et par tanker her (valgfrit) — kun til dig selv.">${text}</textarea>
+    <div class="nextstep-actions" style="margin-top:0.6rem;">
+      <button class="btn ${done ? "" : "btn-primary"}" data-action="quiz-reflect" data-qid="${q.id}">${done ? "Opdateret ✓ — gem igen" : "Noteret ✓"}</button>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;">Ren refleksion — der er ikke noget facit at sammenligne med her, kun kap. 5.3 selv, når du læser det.</div>
+  `;
+  return questionShell(week, q, inner);
+}
+
+function renderQuestion(week, q) {
+  if (q.type === "mc") return renderMC(week, q);
+  if (q.type === "tf") return renderTF(q, week);
+  if (q.type === "flash") return renderFlash(week, q);
+  if (q.type === "match") return renderMatch(week, q);
+  if (q.type === "self") return renderSelf(week, q);
+  if (q.type === "reflection") return renderReflection(week, q);
+  return "";
+}
+
+// ---- mode / section rendering -------------------------------------------
+function renderQuizSection(week) {
+  const bank = getQuizBank(week.id);
+  if (!bank) return "";
+
+  const bCorrect = basisCorrectCount(week.id);
+  const aEngaged = anvendelseEngagedCount(week.id);
+  const anvendelseReady = bCorrect >= Math.min(3, bank.basis.length);
+  const examReady = aEngaged >= Math.min(2, bank.anvendelse.length);
+  const revisit = needsRevisit(week.id);
+
+  const modeBtn = (mode, label, badge) => `
+    <button class="quiz-mode-btn ${quizUI.mode === mode ? "active" : ""}" data-action="quiz-mode" data-mode="${mode}">
+      ${label}${badge ? `<span class="quiz-mode-badge">✨ anbefalet</span>` : ""}
+    </button>`;
+
+  let hint = "Start i Basis — et par korrekte svar, så er du klar til Anvendelse.";
+  if (quizUI.mode === "basis" && anvendelseReady) hint = "Du har styr på det grundlæggende — prøv gerne Anvendelse næste gang.";
+  if (quizUI.mode === "anvendelse" && examReady) hint = "God øvelse i Anvendelse — Eksamenstræning er klar, når du er.";
+  if (quizUI.mode === "eksamen") hint = "En kort blandet session. Ingen af tabellerne er låst — hop bare tilbage, hvis du hellere vil øve mere først.";
+
+  let body = "";
+  if (quizUI.mode === "basis") body = bank.basis.map(q => renderQuestion(week, q)).join("");
+  else if (quizUI.mode === "anvendelse") body = bank.anvendelse.map(q => renderQuestion(week, q)).join("");
+  else if (quizUI.mode === "tagigen") {
+    body = revisit.length
+      ? revisit.map(q => renderQuestion(week, q)).join("")
+      : `<p style="color:var(--muted);font-size:0.9rem;">Ingenting at tage igen lige nu — fint sted at være.</p>`;
+  } else if (quizUI.mode === "eksamen") {
+    body = renderExamSession(week);
+  }
+
+  const tagigenBar = revisit.length ? `
+    <div class="tagigen-bar">
+      <span>🔁 ${revisit.length} spørgsmål venter i "Tag igen"</span>
+      <button class="btn" data-action="quiz-mode" data-mode="tagigen">Tag dem igen</button>
+    </div>` : "";
+
+  return `
+    <section class="card fade-in">
+      <h2>Quiz &amp; eksamenstræning</h2>
+      <p class="quiet-note">${bank.basis.length + bank.anvendelse.length} spørgsmål i emnet · ${bank.basis.length} basis · ${bank.anvendelse.length} anvendelse.</p>
+      <div class="quiz-modes">
+        ${modeBtn("basis", "Basis", false)}
+        ${modeBtn("anvendelse", "Anvendelse", anvendelseReady && quizUI.mode !== "anvendelse")}
+        ${modeBtn("eksamen", "Eksamenstræning", examReady && quizUI.mode !== "eksamen")}
+      </div>
+      <div class="quiz-mode-hint">${hint}</div>
+      ${tagigenBar}
+      ${body}
+    </section>`;
+}
+
+function renderQuizLibrary(activeWeekId) {
+  const subjectWeeks = subjectCatalog[activeSubjectId].weeks;
+  const rows = subjectWeeks.map(week => {
+    const weekId = week.id;
+    const bank = getQuizBank(weekId);
+    const count = bank.basis.length + bank.anvendelse.length;
+    return `<div class="weak-item">
+      <div class="weak-item-text"><strong>${week.title}</strong><small>${subjectCatalog[week.subjectId].short} · ${week.label} · ${count} spørgsmål</small></div>
+      <button class="btn ${weekId === activeWeekId ? "btn-primary" : ""}" data-action="open-quiz-bank" data-week="${weekId}">${weekId === activeWeekId ? "Åben nu" : "Start quiz"}</button>
+    </div>`;
+  }).join("");
+  const total = allSemesterWeeks().reduce((sum, week) => { const bank = getQuizBank(week.id); return sum + bank.basis.length + bank.anvendelse.length; }, 0);
+  return `<section class="card fade-in">
+    <div class="exam-kicker" style="color:var(--accent)">Kildebaseret træning</div>
+    <h2>Quizbibliotek</h2>
+    <p class="quiet-note">${total} øvelser på tværs af hele den indlæste semesterstruktur. Her vises ${subjectCatalog[activeSubjectId].label}; skift fag øverst for de øvrige emner.</p>
+    <div class="weak-list">${rows}</div>
+  </section>`;
+}
+
+// ---- eksamenstræning: short mixed session --------------------------------
+function startExamSession(week) {
+  const ids = examIdsForWeek(week.id);
+  quizUI.exam = {
+    ids, index: 0,
+    timerEnabled: storageGet("examTimerEnabled") !== "0",
+    remaining: 60, timerHandle: null,
+  };
+  armExamTimer(week);
+}
+function examIdsForWeek(weekId) {
+  const questions = allQuizQuestions(weekId).filter(q => ["mc", "tf", "match", "self"].includes(q.type));
+  return questions.slice(0, Math.min(8, questions.length)).map(q => q.id);
+}
+function armExamTimer(week) {
+  clearInterval(quizUI.exam.timerHandle);
+  if (!quizUI.exam.timerEnabled) return;
+  quizUI.exam.remaining = 60;
+  quizUI.exam.timerHandle = setInterval(() => {
+    quizUI.exam.remaining--;
+    const fill = document.getElementById("examTimerFill");
+    if (fill) fill.style.width = Math.max(0, (quizUI.exam.remaining / 60) * 100) + "%";
+    if (quizUI.exam.remaining <= 0) clearInterval(quizUI.exam.timerHandle);
+  }, 1000);
+}
+function renderExamSession(week) {
+  if (!quizUI.exam) {
+    const sessionLength = examIdsForWeek(week.id).length;
+    return `
+      <p style="font-size:0.9rem;color:var(--muted);">En fokuseret session på ${sessionLength} spørgsmål, blandet fra Basis og Anvendelse. Ren øvelse — ikke en officiel eksamenskarakter.</p>
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;margin-bottom:0.8rem;">
+        <input type="checkbox" id="examTimerToggle" ${storageGet("examTimerEnabled") !== "0" ? "checked" : ""}> Blid timer (60 sek. pr. spørgsmål — ingen straf, bare et roligt tempo-hint)
+      </label>
+      <button class="btn btn-primary" data-action="quiz-exam-start">Start session</button>`;
+  }
+  const ex = quizUI.exam;
+  if (ex.index >= ex.ids.length) return renderExamRecap(week, ex);
+
+  const qid = ex.ids[ex.index];
+  const q = findQuestion(week.id, qid);
+  const timerHtml = ex.timerEnabled ? `
+    <div class="exam-timer-row">
+      <span>⏱</span>
+      <div class="exam-timer-bar"><div class="exam-timer-fill" id="examTimerFill" style="width:${(ex.remaining / 60) * 100}%"></div></div>
+    </div>` : "";
+  const answered = isAnswered(q);
+  const nextBtn = answered ? `<button class="btn btn-primary" data-action="quiz-exam-next">${ex.index === ex.ids.length - 1 ? "Se opsamling" : "Næste spørgsmål →"}</button>` : "";
+
+  return `
+    <div class="exam-progress">Spørgsmål ${ex.index + 1} af ${ex.ids.length}</div>
+    ${timerHtml}
+    ${renderQuestion(week, q)}
+    <div class="nextstep-actions">${nextBtn}</div>
+  `;
+}
+function renderExamRecap(week, ex) {
+  clearInterval(ex.timerHandle);
+  const qs = ex.ids.map(id => findQuestion(week.id, id));
+  const checkable = qs.filter(q => q.type === "mc" || q.type === "tf" || q.type === "match");
+  const correctCount = checkable.filter(q => getQuizResult(q.id) === "correct" || (q.type === "match" && getMatchAnswers(q.id, q.terms.length).every((a, i) => a === i))).length;
+  const selfAssessed = qs.filter(q => q.type === "self" && getSelfMark(q.id)).length;
+  const revisitHere = qs.filter(q => {
+    if (q.type === "mc" || q.type === "tf") { const r = getQuizResult(q.id); return r === "incorrect" || r === "unsure"; }
+    if (q.type === "self") { const m = getSelfMark(q.id); return m === "oeve" || m === "ikke"; }
+    return false;
+  });
+  const goalIds = [...new Set(qs.map(q => q.goalId))];
+  const goalTexts = goalIds.map(gid => goalTag(week, gid));
+
+  return `
+    <div class="question-card">
+      <h3 style="margin-top:0;">Opsamling</h3>
+      ${checkable.length ? `<div class="exam-recap-stat"><strong>${correctCount}/${checkable.length}</strong> rigtige (kun de objektivt tjekbare)</div>` : `<div class="exam-recap-stat"><strong>${selfAssessed}/${qs.length}</strong> åbne svar selvvurderet</div>`}
+      <div class="exam-recap-stat"><strong>${revisitHere.length}</strong> at tage igen</div>
+      ${revisitHere.length ? `<ul class="plain" style="padding-left:1.1rem;list-style:disc;font-size:0.88rem;">${revisitHere.map(q => `<li>${q.prompt}</li>`).join("")}</ul>` : ""}
+      <div class="eyebrow" style="margin-top:0.8rem;">Læringsmål denne session trænede</div>
+      <ul class="plain" style="padding-left:1.1rem;list-style:disc;font-size:0.88rem;">${goalTexts.map(t => `<li>${t}</li>`).join("")}</ul>
+      <div class="exam-disclaimer">Dette er øvelse baseret på dine egne svar — ikke en officiel eksamenskarakter, og ikke en Claude-vurdering af, hvad du kan.</div>
+      <div class="nextstep-actions" style="margin-top:0.7rem;">
+        <button class="btn btn-primary" data-action="quiz-exam-restart">Ny session</button>
+        <button class="btn" data-action="quiz-mode" data-mode="basis">Tilbage til Basis</button>
+      </div>
+    </div>`;
+}
+
+// =========================================================================
+// EXAM PREPARATION — user-recorded readiness, weak areas and focus sessions.
+// =========================================================================
+const crossExamCases = [
+  {
+    id:"retail-growth", title:"Detailkæden i vækst", minutes:30,
+    intro:"En dansk detailkæde vil åbne flere butikker og samtidig styrke sin digitale forretning. Ledelsen er usikker på omverdenen, organisationen og finansieringen.",
+    questions:[
+      { id:"q1", subject:"Strategisk markedsføring", prompt:"Afgræns markedet og udpeg de vigtigste PESTEL-forhold, som bør undersøges.", rubric:["Tydelig geografisk, produktmæssig og tidsmæssig afgrænsning","Prioriterede PESTEL-forhold frem for en rå liste","Forklaring af mulige muligheder og trusler samt behov for kilder"] },
+      { id:"q2", subject:"Strategisk markedsføring", prompt:"Omsæt analysen til et strategisk initiativ via SWOT/TOWS og placér vækstretningen i Ansoffs vækstmatrice.", rubric:["Initiativet kan spores til analysen","TOWS-koblingen forklares","Ansoff-retningen begrundes"] },
+      { id:"q3", subject:"Organisation & ledelse", prompt:"Hvilke organisatoriske ændringer kræver initiativet, og hvordan kan forandringen ledes?", rubric:["Relevant valg af struktur- eller forandringsmodel","Modellen anvendes konkret på casen","Modstand, ledelse og implementering behandles"] },
+      { id:"q4", subject:"Erhvervsøkonomi", prompt:"Hvilke budgetter og økonomiske nøgletal vil du bruge til at vurdere initiativet?", rubric:["Resultat-, likviditets- og/eller balancebudget vælges relevant","Kapitalbinding, soliditet eller likviditet inddrages","Tallene fortolkes — ikke blot beregnes"] },
+      { id:"q5", subject:"Tværfagligt", prompt:"Giv en samlet anbefaling til ledelsen med den vigtigste gevinst, risiko og næste handling.", rubric:["Binder de tre fag sammen","Prioriterer gevinst og risiko","Slutter med en konkret og begrundet handling"] },
+    ]
+  },
+  {
+    id:"service-change", title:"Servicevirksomheden i forandring", minutes:25,
+    intro:"En servicevirksomhed oplever faldende kundeloyalitet og høj medarbejderudskiftning. Den overvejer et nyt CRM-koncept og mere selvledende teams.",
+    questions:[
+      { id:"q1", subject:"Strategisk markedsføring", prompt:"Analysér kunderejsen og foreslå, hvor CRM-indsatsen bør styrkes.", rubric:["Skelner kanaler, touchpoints og relation","Udpeger et konkret problem i kunderejsen","Kobler initiativet til loyalitet og kundeværdi"] },
+      { id:"q2", subject:"Organisation & ledelse", prompt:"Vurdér om selvledelse passer til situationen, og hvilke rammer teamet behøver.", rubric:["Forklarer både muligheder og krav ved selvledelse","Kobler motivation eller ledelse til medarbejderne","Angiver tydeligt mandat, mål og ansvar"] },
+      { id:"q3", subject:"Organisation & ledelse", prompt:"Brug Tuckman til at forklare, hvordan nye teams kan udvikle sig, og hvad lederen gør undervejs.", rubric:["Faserne bruges korrekt og i sammenhæng","Lederadfærd tilpasses fasen","Konflikter og overgangen mod Performing behandles"] },
+      { id:"q4", subject:"Erhvervsøkonomi", prompt:"Hvordan vil du følge den økonomiske effekt af CRM- og medarbejderindsatsen?", rubric:["Vælger relevante budget- eller rentabilitetsmål","Forklarer sammenhæng mellem aktivitet og økonomi","Nævner mindst én usikkerhed eller tidshorisont"] },
+      { id:"q5", subject:"Tværfagligt", prompt:"Formulér et samlet løsningsforslag, som både styrker kunder, medarbejdere og økonomi.", rubric:["Indsatserne hænger sammen","Prioriterer implementeringen","Definerer hvordan effekten følges"] },
+    ]
+  },
+  {
+    id:"green-investment", title:"Den grønne investering", minutes:30,
+    intro:"En virksomhed overvejer en større grøn investering. Den kan forbedre brand og ressourceforbrug, men binder kapital og kræver nye arbejdsgange.",
+    questions:[
+      { id:"q1", subject:"Strategisk markedsføring", prompt:"Analysér de vigtigste eksterne forhold og interessenter omkring investeringen.", rubric:["Relevante PESTEL-forhold prioriteres","Interessenternes betydning og påvirkningskraft vurderes","Muligheder og trusler konkluderes"] },
+      { id:"q2", subject:"Organisation & ledelse", prompt:"Vurdér investeringen gennem CSR/ESG og Carrolls ansvarstyper.", rubric:["Økonomisk, juridisk, etisk og filantropisk ansvar skelnes","Anvendes konkret på casen","Mulige mål eller dilemmaer beskrives"] },
+      { id:"q3", subject:"Organisation & ledelse", prompt:"Planlæg implementeringen med en relevant forandringsmodel.", rubric:["Modelvalget begrundes","Mennesker, struktur, opgaver eller teknologi kobles","Konkrete implementeringstrin og modstand behandles"] },
+      { id:"q4", subject:"Erhvervsøkonomi", prompt:"Forklar hvordan investeringen kan påvirke kapitaltilpasning, soliditet og likviditet.", rubric:["Kapitalbinding forklares","Finansiering kobles til soliditet","Kortsigtet likviditet vurderes særskilt"] },
+      { id:"q5", subject:"Tværfagligt", prompt:"Anbefal om og hvordan virksomheden bør gennemføre investeringen.", rubric:["Afvejer strategisk potentiale og økonomisk risiko","Inddrager organisationens gennemførelsesevne","Giver en betinget og konkret anbefaling"] },
+    ]
+  }
+];
+
+const crossExamUI = { caseId: storageGet("crossExam.case") || null, step: parseInt(storageGet("crossExam.step"), 10) || 0 };
+
+function renderCrossExam() {
+  const activeCase = crossExamCases.find(item => item.id === crossExamUI.caseId);
+  if (!activeCase) {
+    return `<section class="card fade-in"><div class="exam-kicker">Tværfaglig træning</div><h2>Vælg en eksamenscase</h2><p class="quiet-note">Fem sammenhængende spørgsmål på tværs af fagene. Du skriver selv svaret og vurderer det mod en faglig tjekliste.</p><div class="case-grid">${crossExamCases.map(item => `<button class="case-choice" data-action="cross-start" data-case="${item.id}"><strong>${item.title}</strong><span>${item.minutes} min · 5 spørgsmål</span><small>${item.intro}</small></button>`).join("")}</div></section>`;
+  }
+  if (crossExamUI.step >= activeCase.questions.length) {
+    const marks = activeCase.questions.map(q => storageGet(`crossExam.${activeCase.id}.${q.id}.mark`));
+    const can = marks.filter(mark => mark === "kan").length;
+    return `<section class="card fade-in"><div class="exam-kicker">Session gennemført</div><h2>${activeCase.title}</h2><div class="readiness-grid"><div class="readiness-stat"><strong>${can}/5</strong><span>kan forklare</span></div><div class="readiness-stat"><strong>${marks.filter(Boolean).length}/5</strong><span>selvvurderet</span></div></div><p class="overview-explainer">Resultatet er udelukkende dine egne markeringer, ikke en karakter.</p><div class="nextstep-actions"><button class="btn btn-primary" data-action="cross-restart">Tag casen igen</button><button class="btn" data-action="cross-choose">Vælg en anden case</button></div></section>`;
+  }
+  const q = activeCase.questions[crossExamUI.step];
+  const key = `crossExam.${activeCase.id}.${q.id}`;
+  const draft = storageGet(key + ".draft") || "";
+  const mark = storageGet(key + ".mark");
+  const rubricOpen = document.body.dataset.crossRubric === "1";
+  const rubricKey = key + ".rubric";
+  const rubricState = getRubricState(rubricKey, q.rubric.length);
+  const rubricHtml = q.rubric.map((point, i) => `<label><input type="checkbox" data-action="cross-rubric-check" data-key="${rubricKey}" data-index="${i}" data-len="${q.rubric.length}" ${rubricState[i] ? "checked" : ""}> ${point}</label>`).join("");
+  return `<section class="card fade-in"><div class="exam-kicker">Tværfaglig eksamenscase</div><div class="cross-head"><div><h2>${activeCase.title}</h2><p class="quiet-note">${activeCase.intro}</p></div><strong>${crossExamUI.step + 1}/5</strong></div><div class="bar-track"><div class="bar-fill" style="width:${(crossExamUI.step + 1) * 20}%"></div></div><div class="question-card"><div class="question-goal-tag">${q.subject}</div><div class="question-prompt">${q.prompt}</div><textarea class="reflection-box cross-answer" id="crossAnswer" placeholder="Skriv stikord eller dit mundtlige svar her…">${draft}</textarea><div class="nextstep-actions"><button class="btn" data-action="cross-save">Gem svar</button><button class="btn" data-action="cross-rubric">${rubricOpen ? "Skjul tjekliste" : "Vis tjekliste"}</button></div>${rubricOpen ? `<div class="answer-checklist">${rubricHtml}</div><div class="selftest-actions">${["kan","oeve","ikke"].map(value => `<button class="${mark === value ? "sel-" + value : ""}" data-action="cross-mark" data-mark="${value}">${selftestLabel[value]}</button>`).join("")}</div>` : ""}</div><div class="nextstep-actions"><button class="btn" data-action="cross-prev" ${crossExamUI.step === 0 ? "disabled" : ""}>← Forrige</button><button class="btn btn-primary" data-action="cross-next" ${mark ? "" : "disabled"}>${crossExamUI.step === 4 ? "Se opsamling" : "Næste spørgsmål →"}</button></div><p class="overview-explainer">Du skal selv markere dit svar, før du går videre. Siden bedømmer ikke svaret.</p></section>`;
+}
+
+const prepUI = {
+  minutes: parseInt(storageGet("focusMinutes"), 10) || 25,
+  remaining: null,
+  running: false,
+  timerHandle: null,
+  openGoal: null,
+};
+prepUI.remaining = prepUI.minutes * 60;
+
+function allGoalRows() {
+  return allSemesterWeeks().flatMap(week => week.goals.map(goal => ({ week, goal, subject: subjectCatalog[week.subjectId] })));
+}
+
+function goalReadiness(goal) {
+  const statusScore = statusValue[currentStatus(goal)];
+  const self = getSelftest(goal.id);
+  const selfScore = self === "kan" ? 1 : self === "oeve" ? 0.5 : 0;
+  return Math.round((statusScore * 0.7 + selfScore * 0.3) * 100);
+}
+
+function weakGoals(limit = 7) {
+  return allGoalRows()
+    .map(row => ({ ...row, score: goalReadiness(row.goal), self: getSelftest(row.goal.id) }))
+    .filter(row => row.score < 100)
+    .sort((a, b) => a.score - b.score || a.week.label.localeCompare(b.week.label, "da"))
+    .slice(0, limit);
+}
+
+function getExamDate() { return storageGet("examDate") || ""; }
+function examCountdown() {
+  const value = getExamDate();
+  if (!value) return null;
+  const target = new Date(value + "T23:59:59");
+  return Math.max(0, Math.ceil((target - new Date()) / 86400000));
+}
+
+function weeklyFocusMinutes() {
+  const currentWeek = isoWeekKey(new Date());
+  return storageGetJSON("focusLog", []).filter(x => isoWeekKey(new Date(x.date + "T00:00:00")) === currentWeek).reduce((sum, x) => sum + x.minutes, 0);
+}
+
+function formatFocusTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+}
+
+function updateFocusDisplay() {
+  const display = document.getElementById("focusTime");
+  if (display) display.textContent = formatFocusTime(prepUI.remaining);
+}
+
+function toggleFocusTimer() {
+  prepUI.running = !prepUI.running;
+  clearInterval(prepUI.timerHandle);
+  if (prepUI.running) {
+    prepUI.timerHandle = setInterval(() => {
+      prepUI.remaining--;
+      updateFocusDisplay();
+      if (prepUI.remaining <= 0) {
+        clearInterval(prepUI.timerHandle);
+        prepUI.running = false;
+        const log = storageGetJSON("focusLog", []);
+        log.push({ date: todayISO(), minutes: prepUI.minutes });
+        storageSetJSON("focusLog", log);
+        toast("Fokussession gennemført — stærkt arbejde.");
+        prepUI.remaining = prepUI.minutes * 60;
+        renderExamPrep();
+      }
+    }, 1000);
+  }
+  renderExamPrep();
+}
+
+function renderExamPrep() {
+  const target = document.getElementById("examPrepContent");
+  if (!target) return;
+  const rows = allGoalRows();
+  const coverage = rows.length ? Math.round(rows.reduce((sum, row) => sum + statusValue[currentStatus(row.goal)], 0) / rows.length * 100) : 0;
+  const selfKan = rows.filter(row => getSelftest(row.goal.id) === "kan").length;
+  const selfPct = rows.length ? Math.round(selfKan / rows.length * 100) : 0;
+  const activity = allSemesterWeeks().reduce((acc, week) => { const p = weekActivityProgress(week); return { done: acc.done + p.done, total: acc.total + p.total }; }, { done: 0, total: 0 });
+  const activityPct = activity.total ? Math.round(activity.done / activity.total * 100) : 0;
+  const readiness = Math.round(coverage * 0.55 + selfPct * 0.3 + activityPct * 0.15);
+  const weak = weakGoals(5);
+  const countdown = examCountdown();
+  const dateValue = getExamDate();
+
+  const weekRows = allSemesterWeeks().map(week => {
+    const pct = computeCoverage(week).pct;
+    return `<div class="readiness-row"><span>${subjectCatalog[week.subjectId].short} · ${week.label}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><strong>${pct}%</strong></div>`;
+  }).join("");
+  const subjectRows = Object.values(subjectCatalog).map(subject => {
+    const goals = subject.weeks.flatMap(week => week.goals);
+    const pct = goals.length ? Math.round(goals.reduce((sum, goal) => sum + statusValue[currentStatus(goal)], 0) / goals.length * 100) : 0;
+    return `<div class="readiness-row"><span>${subject.short}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><strong>${pct}%</strong></div>`;
+  }).join("");
+
+  const weakHtml = weak.length ? weak.map(row => {
+    const open = prepUI.openGoal === row.goal.id;
+    const quizMisses = needsRevisit(row.week.id).length;
+    const reason = !row.self ? "Mangler en selvtest" : currentStatus(row.goal) === "missing" ? "Markeret som mangler" : quizMisses ? `${quizMisses} quizsvar skal tages igen` : "Ikke fuldt dækket endnu";
+    const status = currentStatus(row.goal);
+    const self = getSelftest(row.goal.id);
+    return `<div class="weak-group ${open ? "open" : ""}">
+      <div class="weak-item">
+        <div class="weak-item-text"><strong>${row.goal.text}</strong><small>${row.subject.short} · ${row.week.label} · ${reason}</small></div>
+        <button class="btn ${open ? "btn-primary" : ""}" data-action="prep-toggle-goal" data-goal="${row.goal.id}" aria-expanded="${open}">${open ? "Luk" : "Øv her"}</button>
+      </div>
+      ${open ? `<div class="weak-practice">
+        <div class="question-goal-tag">Din korte øvelse</div>
+        <p class="selftest-prompt">${promptFor(row.goal.id)}</p>
+        <div class="eyebrow">Hvordan gik forklaringen?</div>
+        <div class="selftest-actions">${["kan","oeve","ikke"].map(value => `<button class="${self === value ? "sel-" + value : ""}" data-action="prep-selfmark" data-goal="${row.goal.id}" data-result="${value}">${selftestLabel[value]}</button>`).join("")}</div>
+        <div class="eyebrow">Hvor dækket er læringsmålet?</div>
+        <div class="status-control">${["covered","partly","missing"].map(value => `<button class="${status === value ? "sel-" + value : ""}" data-action="prep-status" data-goal="${row.goal.id}" data-status="${value}">${statusLabel[value]}</button>`).join("")}</div>
+        <div class="nextstep-actions"><button class="btn btn-primary" data-action="prep-start-quiz" data-subject="${row.week.subjectId}" data-week="${row.week.id}">Start emnequiz</button><button class="btn" data-action="prep-open-week" data-subject="${row.week.subjectId}" data-week="${row.week.id}" data-goal="${row.goal.id}">Åbn hele ugeemnet</button></div>
+        <p class="overview-explainer">Dine valg gemmes lokalt og opdaterer prioriteringen med det samme. Det er stadig din egen vurdering — ikke en automatisk bedømmelse.</p>
+      </div>` : ""}
+    </div>`;
+  }).join("") : `<p class="quiet-note">Ingen svage områder registreret lige nu. Brug quizzen til at udfordre vurderingen.</p>`;
+
+  const queueHtml = weak.slice(0, 5).map(row => `
+    <li><span>${row.goal.text}<small style="display:block;color:var(--muted)">${row.subject.short} · ${row.week.label}</small></span><span class="review-state">${row.score}%</span></li>`).join("");
+
+  target.innerHTML = `
+    <section class="card exam-hero fade-in">
+      <div class="exam-kicker">Din eksamensbase</div>
+      <h2>Læs målrettet — ikke bare længere</h2>
+      <p>Overblikket prioriterer de læringsmål, du selv har markeret som manglende, delvise eller usikre.</p>
+      <div class="exam-setup">
+        <label><span class="exam-date-label">Eksamensdato</span><input class="exam-date" id="examDate" type="date" value="${dateValue}"></label>
+        <div class="exam-countdown">${countdown === null ? `<span>Tilføj dato for nedtælling</span>` : `<strong>${countdown}</strong><span>${countdown === 1 ? "dag tilbage" : "dage tilbage"}</span>`}</div>
+      </div>
+    </section>
+
+    <section class="card fade-in">
+      <h2>Selvregistreret eksamensberedskab</h2>
+      <div class="readiness-grid">
+        <div class="readiness-stat"><strong>${readiness}%</strong><span>samlet overblik</span></div>
+        <div class="readiness-stat"><strong>${selfKan}/${rows.length}</strong><span>kan forklare</span></div>
+        <div class="readiness-stat"><strong>${activity.done}/${activity.total}</strong><span>aktiviteter gennemført</span></div>
+      </div>
+      <p class="overview-explainer">Vægtes ud fra dine egne statusmarkeringer (55%), selvtests (30%) og aktiviteter (15%). Det er et planlægningsværktøj — ikke en karakter.</p>
+      <div class="eyebrow">Dækning pr. fag</div><div class="readiness-list">${subjectRows}</div>
+      <details class="compact-details"><summary>Se alle ugeemner</summary><div class="readiness-list">${weekRows}</div></details>
+    </section>
+
+    <section class="card fade-in">
+      <h2>Det bør du øve først</h2>
+      <div class="weak-list">${weakHtml}</div>
+    </section>
+
+    <section class="card fade-in">
+      <h2>Fokussession</h2>
+      <p class="quiet-note">Vælg et tidsrum, tag første punkt i repetitionskøen, og arbejd kun med det.</p>
+      <div class="study-presets">${[15,25,45].map(m => `<button class="btn ${prepUI.minutes === m ? "btn-primary" : ""}" data-action="focus-preset" data-minutes="${m}">${m} min</button>`).join("")}</div>
+      <div class="focus-panel"><div class="focus-time" id="focusTime">${formatFocusTime(prepUI.remaining)}</div><div class="nextstep-actions"><button class="btn btn-primary" data-action="focus-toggle">${prepUI.running ? "Pause" : "Start fokus"}</button><button class="btn" data-action="focus-reset">Nulstil</button></div></div>
+      <p class="overview-explainer">${weeklyFocusMinutes()} fokuserede minutter registreret denne uge.</p>
+      ${queueHtml ? `<div class="eyebrow">Din repetitionskø</div><ol class="review-queue">${queueHtml}</ol>` : ""}
+    </section>
+    ${renderCrossExam()}`;
+
+  wireExamPrepEvents();
+}
+
+function wireExamPrepEvents() {
+  const examDate = document.getElementById("examDate");
+  if (examDate) examDate.addEventListener("change", () => { storageSet("examDate", examDate.value); renderExamPrep(); });
+  document.querySelectorAll('[data-action="focus-preset"]').forEach(btn => btn.addEventListener("click", () => {
+    clearInterval(prepUI.timerHandle); prepUI.running = false; prepUI.minutes = Number(btn.dataset.minutes); prepUI.remaining = prepUI.minutes * 60; storageSet("focusMinutes", String(prepUI.minutes)); renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="focus-toggle"]').forEach(btn => btn.addEventListener("click", toggleFocusTimer));
+  document.querySelectorAll('[data-action="focus-reset"]').forEach(btn => btn.addEventListener("click", () => { clearInterval(prepUI.timerHandle); prepUI.running = false; prepUI.remaining = prepUI.minutes * 60; renderExamPrep(); }));
+  document.querySelectorAll('[data-action="prep-toggle-goal"]').forEach(btn => btn.addEventListener("click", () => {
+    prepUI.openGoal = prepUI.openGoal === btn.dataset.goal ? null : btn.dataset.goal;
+    renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="prep-selfmark"]').forEach(btn => btn.addEventListener("click", () => {
+    setSelftest(btn.dataset.goal, btn.dataset.result); prepUI.openGoal = btn.dataset.goal; toast("Din selvtest er gemt."); renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="prep-status"]').forEach(btn => btn.addEventListener("click", () => {
+    setStoredStatus(btn.dataset.goal, btn.dataset.status); prepUI.openGoal = btn.dataset.goal; toast("Dækningen er opdateret."); renderExamPrep(); renderMotivation();
+  }));
+  document.querySelectorAll('[data-action="prep-start-quiz"]').forEach(btn => btn.addEventListener("click", () => {
+    quizUI.mode = "basis"; quizUI.exam = null; activateSubject(btn.dataset.subject, btn.dataset.week); setView("quiz");
+  }));
+  document.querySelectorAll('[data-action="prep-open-week"]').forEach(btn => btn.addEventListener("click", () => {
+    const week = findSemesterWeek(btn.dataset.week); if (!week) return;
+    openSelftestPanels.add(btn.dataset.goal);
+    activateSubject(week.subjectId, week.id);
+    setView("week");
+    setTimeout(() => document.getElementById("selftest-" + btn.dataset.goal)?.scrollIntoView({ behavior:"smooth", block:"center" }), 0);
+  }));
+  document.querySelectorAll('[data-action="cross-start"]').forEach(btn => btn.addEventListener("click", () => {
+    crossExamUI.caseId = btn.dataset.case; crossExamUI.step = 0; storageSet("crossExam.case", crossExamUI.caseId); storageSet("crossExam.step", "0"); document.body.dataset.crossRubric = "0"; renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="cross-save"]').forEach(btn => btn.addEventListener("click", () => {
+    const activeCase = crossExamCases.find(item => item.id === crossExamUI.caseId); const q = activeCase?.questions[crossExamUI.step]; if (!q) return;
+    storageSet(`crossExam.${activeCase.id}.${q.id}.draft`, document.getElementById("crossAnswer")?.value || ""); toast("Dit svar er gemt lokalt.");
+  }));
+  document.querySelectorAll('[data-action="cross-rubric"]').forEach(btn => btn.addEventListener("click", () => {
+    const activeCase = crossExamCases.find(item => item.id === crossExamUI.caseId); const q = activeCase?.questions[crossExamUI.step];
+    if (q) storageSet(`crossExam.${activeCase.id}.${q.id}.draft`, document.getElementById("crossAnswer")?.value || "");
+    document.body.dataset.crossRubric = document.body.dataset.crossRubric === "1" ? "0" : "1"; renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="cross-mark"]').forEach(btn => btn.addEventListener("click", () => {
+    const activeCase = crossExamCases.find(item => item.id === crossExamUI.caseId); const q = activeCase?.questions[crossExamUI.step]; if (!q) return;
+    storageSet(`crossExam.${activeCase.id}.${q.id}.draft`, document.getElementById("crossAnswer")?.value || ""); storageSet(`crossExam.${activeCase.id}.${q.id}.mark`, btn.dataset.mark); renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="cross-rubric-check"]').forEach(cb => cb.addEventListener("change", () => {
+    const activeCase = crossExamCases.find(item => item.id === crossExamUI.caseId); const q = activeCase?.questions[crossExamUI.step]; if (!q) return;
+    storageSet(`crossExam.${activeCase.id}.${q.id}.draft`, document.getElementById("crossAnswer")?.value || "");
+    const state = getRubricState(cb.dataset.key, parseInt(cb.dataset.len, 10));
+    state[parseInt(cb.dataset.index, 10)] = cb.checked;
+    setRubricState(cb.dataset.key, state);
+    renderExamPrep();
+  }));
+  document.querySelectorAll('[data-action="cross-next"]').forEach(btn => btn.addEventListener("click", () => { crossExamUI.step++; storageSet("crossExam.step", String(crossExamUI.step)); document.body.dataset.crossRubric = "0"; renderExamPrep(); }));
+  document.querySelectorAll('[data-action="cross-prev"]').forEach(btn => btn.addEventListener("click", () => { crossExamUI.step = Math.max(0, crossExamUI.step - 1); storageSet("crossExam.step", String(crossExamUI.step)); document.body.dataset.crossRubric = "0"; renderExamPrep(); }));
+  document.querySelectorAll('[data-action="cross-restart"]').forEach(btn => btn.addEventListener("click", () => { crossExamUI.step = 0; storageSet("crossExam.step", "0"); renderExamPrep(); }));
+  document.querySelectorAll('[data-action="cross-choose"]').forEach(btn => btn.addEventListener("click", () => { crossExamUI.caseId = null; crossExamUI.step = 0; storageSet("crossExam.case", ""); storageSet("crossExam.step", "0"); renderExamPrep(); }));
+}
+
+// =========================================================================
+// HELE PENSUM — adaptive, endless drilling over verified question banks.
+// =========================================================================
+const adaptiveUI = { current: null, revealed: false, answered: false, outcome: null, feedback: "", sessionAnswered: 0, sessionCorrect: 0 };
+
+function adaptivePool() {
+  const selectedSubject = storageGet("adaptive.subject") || "all";
+  return allSemesterWeeks().flatMap(week => {
+    const weekId = week.id;
+    const bank = getQuizBank(weekId);
+    if (!week || (selectedSubject !== "all" && week.subjectId !== selectedSubject)) return [];
+    const basis = bank.basis
+      .filter(q => ["mc", "tf", "flash"].includes(q.type))
+      .map(q => ({ ...q, difficulty: q.type === "flash" || q.type === "tf" ? 1 : 1.5, mode: "Basis" }));
+    const application = bank.anvendelse
+      .filter(q => ["mc", "self"].includes(q.type))
+      .map(q => ({ ...q, difficulty: q.type === "mc" ? 2.3 : 3, mode: "Anvendelse" }));
+    return [...basis, ...application].map(q => ({ ...q, subject: subjectCatalog[week.subjectId].label, subjectId: week.subjectId, weekId, weekLabel: week.label }));
+  });
+}
+
+function getAdaptiveLevel() {
+  const value = parseFloat(storageGet("adaptive.level"));
+  return Number.isFinite(value) ? Math.max(1, Math.min(3, value)) : 1;
+}
+
+function getTopicLevel(weekId) {
+  const value = parseFloat(storageGet("adaptive.level." + weekId));
+  return Number.isFinite(value) ? Math.max(1, Math.min(3, value)) : getAdaptiveLevel();
+}
+
+function adaptiveDueScore(q) {
+  const stats = adaptiveStatsFor(q.id);
+  if (!stats.dueDate) return -0.35;
+  const due = new Date(stats.dueDate + "T00:00:00");
+  const today = new Date(todayISO() + "T00:00:00");
+  return due <= today ? -0.8 : 0.6;
+}
+
+function adaptiveStatsFor(id) { return storageGetJSON("adaptive.stats." + id, { seen: 0, correct: 0, wrong: 0 }); }
+
+function pickAdaptiveQuestion() {
+  const pool = adaptivePool();
+  if (!pool.length) return null;
+  const recent = storageGetJSON("adaptive.history", []).slice(-3);
+  return pool.map(q => {
+    const stats = adaptiveStatsFor(q.id);
+    const accuracy = stats.seen ? stats.correct / stats.seen : 0.5;
+    const topicLevel = getTopicLevel(q.weekId);
+    const score = Math.abs(q.difficulty - topicLevel) + accuracy * 0.35 + stats.seen * 0.025 + adaptiveDueScore(q) + (recent.includes(q.id) ? 2 : 0);
+    return { q, score };
+  }).sort((a, b) => a.score - b.score)[0].q;
+}
+
+function adaptiveTotals() {
+  return adaptivePool().reduce((acc, q) => { const s = adaptiveStatsFor(q.id); acc.seen += s.seen; acc.correct += s.correct; acc.wrong += s.wrong; return acc; }, { seen: 0, correct: 0, wrong: 0 });
+}
+
+function adaptiveLevelLabel(level) { return level < 1.7 ? "Basis" : level < 2.5 ? "Anvendelse" : "Eksamen"; }
+
+function adaptiveTopicSummary(selectedSubject) {
+  return allSemesterWeeks().filter(week => selectedSubject === "all" || week.subjectId === selectedSubject).map(week => {
+    const questions = allQuizQuestions(week.id).filter(q => ["mc","tf","flash","self"].includes(q.type));
+    const stats = questions.map(q => adaptiveStatsFor(q.id));
+    const seen = stats.reduce((sum,item) => sum + item.seen, 0);
+    const correct = stats.reduce((sum,item) => sum + item.correct, 0);
+    return { week, level:getTopicLevel(week.id), seen, accuracy:seen ? Math.round(correct / seen * 100) : null };
+  }).sort((a,b) => a.level - b.level || a.seen - b.seen).slice(0, 4);
+}
+
+function adaptiveAnswer(outcome, feedback) {
+  const q = adaptiveUI.current;
+  if (!q || adaptiveUI.answered) return;
+  adaptiveUI.answered = true;
+  adaptiveUI.outcome = outcome;
+  adaptiveUI.feedback = feedback;
+  adaptiveUI.sessionAnswered++;
+  if (outcome === "correct") adaptiveUI.sessionCorrect++;
+  const stats = adaptiveStatsFor(q.id);
+  stats.seen++;
+  stats[outcome === "correct" ? "correct" : "wrong"]++;
+  stats.intervalDays = outcome === "correct" ? Math.min(30, stats.intervalDays ? Math.max(1, stats.intervalDays * 2) : 1) : 0;
+  const due = new Date();
+  due.setDate(due.getDate() + stats.intervalDays);
+  stats.dueDate = due.getFullYear() + "-" + String(due.getMonth() + 1).padStart(2, "0") + "-" + String(due.getDate()).padStart(2, "0");
+  storageSetJSON("adaptive.stats." + q.id, stats);
+  const nextLevel = Math.max(1, Math.min(3, getAdaptiveLevel() + (outcome === "correct" ? 0.35 : -0.45)));
+  storageSet("adaptive.level", nextLevel.toFixed(2));
+  const nextTopicLevel = Math.max(1, Math.min(3, getTopicLevel(q.weekId) + (outcome === "correct" ? 0.3 : -0.4)));
+  storageSet("adaptive.level." + q.weekId, nextTopicLevel.toFixed(2));
+  const history = storageGetJSON("adaptive.history", []); history.push(q.id); storageSetJSON("adaptive.history", history.slice(-20));
+  renderAllCurriculum();
+}
+
+function renderAdaptiveQuestion(q) {
+  if (!q) return `<p class="quiet-note">Der er endnu ingen verificerede spørgsmål i banken.</p>`;
+  if (q.type === "mc") {
+    const buttons = q.options.map((option, index) => `<button class="option-btn" data-action="adaptive-mc" data-index="${index}" ${adaptiveUI.answered ? "disabled" : ""}>${option}</button>`).join("");
+    return `<div class="option-list">${buttons}<button class="option-btn" data-action="adaptive-unsure" ${adaptiveUI.answered ? "disabled" : ""}>Jeg er ikke sikker</button></div>`;
+  }
+  if (q.type === "tf") {
+    return `<div class="option-list"><button class="option-btn" data-action="adaptive-tf" data-value="true" ${adaptiveUI.answered ? "disabled" : ""}>Sandt</button><button class="option-btn" data-action="adaptive-tf" data-value="false" ${adaptiveUI.answered ? "disabled" : ""}>Falsk</button><button class="option-btn" data-action="adaptive-unsure" ${adaptiveUI.answered ? "disabled" : ""}>Jeg er ikke sikker</button></div>`;
+  }
+  if (q.type === "flash") {
+    if (!adaptiveUI.revealed) return `<button class="btn btn-primary" data-action="adaptive-reveal">Vis svar</button>`;
+    return `<div class="question-feedback feedback-unsure"><strong>${q.back}</strong></div><div class="nextstep-actions"><button class="btn btn-primary" data-action="adaptive-rate" data-outcome="correct">Den kunne jeg</button><button class="btn" data-action="adaptive-rate" data-outcome="wrong">Skal øves</button></div>`;
+  }
+  if (q.type === "self") {
+    const adaptiveRubricKey = "adaptive.checklist." + q.id;
+    const adaptiveRubricState = getRubricState(adaptiveRubricKey, q.checklist.length);
+    const adaptiveRubricHtml = q.checklist.map((point, i) => `<label><input type="checkbox" data-action="adaptive-checklist-check" data-key="${adaptiveRubricKey}" data-index="${i}" data-len="${q.checklist.length}" ${adaptiveRubricState[i] ? "checked" : ""}> ${point}</label>`).join("");
+    return `<p class="quiet-note">Svar højt eller på papir. Sammenlign derefter med tjeklisten:</p><div class="answer-checklist">${adaptiveRubricHtml}</div><div class="nextstep-actions"><button class="btn btn-primary" data-action="adaptive-rate" data-outcome="correct">Kan forklare</button><button class="btn" data-action="adaptive-rate" data-outcome="wrong">Skal øve</button></div>`;
+  }
+  return "";
+}
+
+function renderAllCurriculum() {
+  const target = document.getElementById("allCurriculumContent");
+  if (!target) return;
+  if (!adaptiveUI.current) adaptiveUI.current = pickAdaptiveQuestion();
+  const q = adaptiveUI.current;
+  const level = q ? getTopicLevel(q.weekId) : getAdaptiveLevel();
+  const totals = adaptiveTotals();
+  const accuracy = totals.seen ? Math.round(totals.correct / totals.seen * 100) : 0;
+  const selectedSubject = storageGet("adaptive.subject") || "all";
+  const sourceText = q ? (q.sourceLabel || kildeLabel(q.source)) + " · " + q.weekLabel : "";
+  const subjectButtons = [
+    { id:"all", label:"Alle tre fag" },
+    { id:"eo", label:"Erhvervsøkonomi" },
+    { id:"org", label:"Organisation & ledelse" },
+    { id:"marketing", label:"Strategisk markedsføring" },
+  ].map(item => `<button class="subject-chip ${selectedSubject === item.id ? "active" : ""}" data-action="adaptive-subject" data-subject="${item.id}">${item.label}</button>`).join("");
+  const topicSummary = adaptiveTopicSummary(selectedSubject).map(item => `<div class="topic-progress"><span>${subjectCatalog[item.week.subjectId].short} · ${item.week.title}</span><strong>${adaptiveLevelLabel(item.level)}</strong><small>${item.accuracy === null ? "Ikke trænet endnu" : item.accuracy + "% af registrerede svar"}</small></div>`).join("");
+  target.innerHTML = `
+    <section class="card fade-in">
+      <div class="adaptive-top"><div><div class="exam-kicker" style="color:var(--accent)">Adaptiv terpequiz</div><h2>Hele pensum</h2><p class="quiet-note">Quizzen fortsætter uden slutpunkt, husker niveauet pr. emne og planlægger svære spørgsmål til tidligere gentagelse.</p></div><div class="adaptive-level"><span class="overview-label">Emneniveau</span><strong>${adaptiveLevelLabel(level)}</strong><span class="overview-label">${level.toFixed(1)} / 3.0</span></div></div>
+      <div class="subject-row">${subjectButtons}</div>
+      <p class="overview-explainer">Vælg ét fag eller bland alle tre. Banken blander to slags spørgsmål: håndverificerede faktaspørgsmål fra faktisk gennemgåede flowplaner/slides/noter, og åbne refleksionsspørgsmål udledt direkte af læringsmålenes egen tekst (mærket "Kilde" på hvert spørgsmål). Ingen af dem retter dine svar automatisk.</p>
+      <div class="topic-summary">${topicSummary}</div>
+      <div class="adaptive-question" aria-live="polite">
+        <div class="adaptive-meta"><span>${q ? q.subject + " · " + q.mode : ""}</span><span>${sourceText}</span></div>
+        <div class="adaptive-prompt">${q?.scenario ? `<span style="display:block;font-weight:400;color:var(--muted);margin-bottom:.45rem">${q.scenario}</span>` : ""}${q?.prompt || ""}</div>
+        ${renderAdaptiveQuestion(q)}
+        ${adaptiveUI.answered ? `<div class="adaptive-feedback ${adaptiveUI.outcome === "correct" ? "correct" : "wrong"}">${adaptiveUI.feedback}</div><div class="nextstep-actions"><button class="btn btn-primary" data-action="adaptive-next">Næste spørgsmål →</button></div>` : ""}
+      </div>
+      <div class="adaptive-stats"><span>Denne session: ${adaptiveUI.sessionCorrect}/${adaptiveUI.sessionAnswered} rigtige</span><span>Samlet: ${accuracy}%</span><span>${totals.seen} svar registreret</span></div>
+    </section>`;
+  wireAdaptiveEvents();
+}
+
+function wireAdaptiveEvents() {
+  document.querySelectorAll('[data-action="adaptive-subject"]').forEach(btn => btn.addEventListener("click", () => {
+    storageSet("adaptive.subject", btn.dataset.subject);
+    adaptiveUI.current = null; adaptiveUI.revealed = false; adaptiveUI.answered = false; adaptiveUI.outcome = null; adaptiveUI.feedback = "";
+    renderAllCurriculum();
+  }));
+  document.querySelectorAll('[data-action="adaptive-mc"]').forEach(btn => btn.addEventListener("click", () => {
+    const q = adaptiveUI.current; const correct = Number(btn.dataset.index) === q.correct;
+    adaptiveAnswer(correct ? "correct" : "wrong", correct ? "Rigtigt. " + q.explanation : "Ikke helt. " + q.explanation);
+  }));
+  document.querySelectorAll('[data-action="adaptive-tf"]').forEach(btn => btn.addEventListener("click", () => {
+    const q = adaptiveUI.current; const picked = btn.dataset.value === "true"; const correct = picked === q.correct;
+    adaptiveAnswer(correct ? "correct" : "wrong", correct ? "Rigtigt. " + q.explanation : "Ikke helt. " + q.explanation);
+  }));
+  document.querySelectorAll('[data-action="adaptive-unsure"]').forEach(btn => btn.addEventListener("click", () => adaptiveAnswer("wrong", "Helt fint at være usikker — spørgsmålet prioriteres igen senere.")));
+  document.querySelectorAll('[data-action="adaptive-reveal"]').forEach(btn => btn.addEventListener("click", () => { adaptiveUI.revealed = true; renderAllCurriculum(); }));
+  document.querySelectorAll('[data-action="adaptive-rate"]').forEach(btn => btn.addEventListener("click", () => adaptiveAnswer(btn.dataset.outcome, btn.dataset.outcome === "correct" ? "Godt. Niveauet stiger lidt." : "Noteret. Niveauet sænkes lidt, og emnet kommer igen.")));
+  document.querySelectorAll('[data-action="adaptive-checklist-check"]').forEach(cb => cb.addEventListener("change", () => {
+    const state = getRubricState(cb.dataset.key, parseInt(cb.dataset.len, 10));
+    state[parseInt(cb.dataset.index, 10)] = cb.checked;
+    setRubricState(cb.dataset.key, state);
+    renderAllCurriculum();
+  }));
+  document.querySelectorAll('[data-action="adaptive-next"]').forEach(btn => btn.addEventListener("click", () => { adaptiveUI.current = null; adaptiveUI.revealed = false; adaptiveUI.answered = false; adaptiveUI.outcome = null; adaptiveUI.feedback = ""; renderAllCurriculum(); }));
+}
+
+// =========================================================================
+// MICROCOPY — small pools, so it doesn't repeat the same line every time.
+// =========================================================================
+let lastMsgIndex = -1;
+function pick(pool) {
+  if (pool.length === 1) return pool[0];
+  let i;
+  do { i = Math.floor(Math.random() * pool.length); } while (i === lastMsgIndex);
+  lastMsgIndex = i;
+  return pool[i];
+}
+const msgActivityDone = [
+  "Fint — én ting mere er markeret som gjort.",
+  "Godt gået. Det tæller.",
+  "Noteret. Godt du kom i gang.",
+  "Sådan. Lidt af gangen tæller.",
+  "Det er registreret — pænt arbejde.",
+];
+const msgStreakUp = [
+  "Endnu en dag i træk — flot.",
+  "Stilfærdig fremgang. Streak forlænget.",
+  "Det tæller, at du dukker op i dag.",
+];
+const msgWeeklyGoal = [
+  "Ugens mål er nået — resten er bonus.",
+  "Tre (eller flere) markeret denne uge. Godt gået.",
+  "Ugemålet er i hus.",
+];
+function toast(text) {
+  const el = document.getElementById("toast");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+// =========================================================================
+// "NÆSTE LILLE SKRIDT" — one concrete, achievable action from the selected
+// week. Session-only rotation state (not persisted): skipping or choosing
+// another item is a UI convenience, not something worth remembering
+// forever in localStorage.
+// =========================================================================
+const nextStepState = {}; // weekId -> { pointer, sessionSkipped: Set }
+
+// Which goals currently have their "Test dig selv" panel expanded. In-memory
+// only (resets on reload, which is fine — it's a UI toggle, not progress).
+// Previously stored via document.body.dataset["open_" + goalId], which threw
+// a SyntaxError for every goal ID matching the pattern hyphen+lowercase-letter
+// (e.g. "uge37-g1" — the "-g" triggers it): DOMStringMap rejects that pattern
+// because it's reserved for camelCase<->kebab-case attribute conversion. Since
+// every goal ID here follows exactly that pattern, the toggle silently threw
+// for every goal, every time — a real bug, not a hypothetical one.
+const openSelftestPanels = new Set();
+
+function actionableItems(week) {
+  const items = [];
+  week.reading.forEach((text, i) => { const id = activityId(week, "reading", i); items.push({ id, type: "reading", label: text, done: isActivityDone(id) }); });
+  week.videos.forEach((text, i) => { const id = activityId(week, "video", i); items.push({ id, type: "video", label: text, done: isActivityDone(id) }); });
+  week.tasks.forEach((text, i) => { const id = activityId(week, "task", i); items.push({ id, type: "task", label: text, done: isActivityDone(id) }); });
+  week.goals.forEach(g => { items.push({ id: g.id, type: "goal-selftest", label: g.text, done: !!getSelftest(g.id) }); });
+  return items;
+}
+
+function pickNextStep(week) {
+  if (!nextStepState[week.id]) nextStepState[week.id] = { pointer: 0, sessionSkipped: new Set() };
+  const st = nextStepState[week.id];
+  const candidates = actionableItems(week).filter(it => !it.done && !st.sessionSkipped.has(it.id));
+  if (candidates.length === 0) return null;
+  st.pointer = st.pointer % candidates.length;
+  return candidates[st.pointer];
+}
+
+const typeLabel = { reading: "Læsning", video: "Video", task: "Opgave / OLA", "goal-selftest": "Læringsmål" };
+
+function renderNextStep(week) {
+  const item = pickNextStep(week);
+  if (!item) {
+    return `
+      <section class="card nextstep-card fade-in">
+        <div class="nextstep-kicker">Næste lille skridt</div>
+        <div class="nextstep-empty">Alt er markeret for denne uge lige nu — flot. Vælg en anden uge, eller gense noget for at holde det friskt.</div>
+      </section>`;
+  }
+  return `
+    <section class="card nextstep-card fade-in">
+      <div class="nextstep-kicker">Næste lille skridt</div>
+      <div class="nextstep-week">${week.label}</div>
+      <div class="nextstep-type">${typeLabel[item.type]}</div>
+      <div class="nextstep-text">${item.label}</div>
+      <div style="font-size:0.85rem;color:var(--muted);">Bare denne ene ting først.</div>
+      <div class="nextstep-actions">
+        ${item.type === "goal-selftest"
+          ? `<button class="btn btn-primary" data-action="nextstep-selftest" data-week="${week.id}" data-goal="${item.id}">Test mig nu →</button>`
+          : `<button class="btn btn-primary" data-action="nextstep-done" data-week="${week.id}" data-id="${item.id}">Gjort ✓</button>`
+        }
+        <button class="btn" data-action="nextstep-another" data-week="${week.id}">Vælg en anden</button>
+        <button class="btn" data-action="nextstep-skip" data-week="${week.id}" data-id="${item.id}">Spring over</button>
+      </div>
+    </section>`;
+}
+
+// =========================================================================
+// RENDER: motivation card (global — not tied to the selected week)
+// =========================================================================
+function renderMotivation() {
+  const streak = currentStreak();
+  const weekCount = completionsThisCalendarWeek();
+  const goal = getWeeklyGoal();
+  const pct = Math.min(100, Math.round((weekCount / goal) * 100));
+
+  document.getElementById("motivationCard").innerHTML = `
+    <h2>I dag</h2>
+    <div class="motivation-grid">
+      <div class="stat-block">
+        <div class="stat-num streak-num">🔥 ${streak}</div>
+        <div class="stat-label">${streak === 1 ? "dag i træk" : "dage i træk"}</div>
+      </div>
+      <div class="weekly-goal-row">
+        <div>
+          <div class="stat-label">Ugens mål: ${weekCount} / <span id="goalDisplay">${goal}</span> aktiviteter</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="stat-block">
+        <label class="stat-label" for="goalInput">Justér ugens mål</label><br>
+        <input id="goalInput" class="goal-input" type="number" min="1" max="50" value="${goal}">
+      </div>
+    </div>
+    <div class="motivation-msg" id="motivationMsg"></div>
+  `;
+
+  document.getElementById("goalInput").addEventListener("change", (e) => {
+    setWeeklyGoal(parseInt(e.target.value, 10));
+    renderMotivation();
+  });
+}
+
+function buildDailyPlan(selectedWeek) {
+  const items = [];
+  const activityWeek = [selectedWeek, ...allSemesterWeeks().filter(week => week.id !== selectedWeek.id)]
+    .find(week => weekActivityIds(week).some(id => !isActivityDone(id)));
+  if (activityWeek) {
+    const action = actionableItems(activityWeek).filter(item => item.type !== "goal-selftest" && !item.done)[0];
+    if (action) items.push({ type:"activity", minutes:15, eyebrow:"Kom roligt i gang", title:action.label, meta:`${subjectCatalog[activityWeek.subjectId].short} · ${activityWeek.label}`, subjectId:activityWeek.subjectId, weekId:activityWeek.id, targetId:action.id });
+  }
+  const weak = weakGoals(1)[0];
+  if (weak) items.push({ type:"goal", minutes:15, eyebrow:"Forklar højt", title:weak.goal.text, meta:`${weak.subject.short} · ${weak.week.label}`, subjectId:weak.week.subjectId, weekId:weak.week.id, goalId:weak.goal.id });
+  const quizWeek = allSemesterWeeks().map(week => {
+    const stats = getQuizBank(week.id); const answered = [...stats.basis, ...stats.anvendelse].filter(isAnswered).length;
+    return { week, score:getTopicLevel(week.id) + answered * 0.01 };
+  }).sort((a,b) => a.score - b.score)[0]?.week;
+  if (quizWeek) items.push({ type:"quiz", minutes:10, eyebrow:"Aktiv genkaldelse", title:`Tag en kort quiz om ${quizWeek.title}`, meta:`${subjectCatalog[quizWeek.subjectId].short} · ${quizWeek.label}`, subjectId:quizWeek.subjectId, weekId:quizWeek.id });
+  return items.slice(0, 3);
+}
+
+function renderDailyPlan(selectedWeek) {
+  const items = buildDailyPlan(selectedWeek);
+  const countdown = examCountdown();
+  return `<section class="card fade-in daily-plan"><div class="plan-head"><div><div class="nextstep-kicker">Din personlige læseplan</div><h2>Dagens rolige plan</h2></div><div class="plan-time">${items.reduce((sum,item)=>sum+item.minutes,0)} min</div></div><p class="quiet-note">Foreslået ud fra dine egne markeringer, svage mål og quizhistorik${countdown === null ? "." : ` · ${countdown} dage til eksamen.`}</p><div class="plan-list">${items.map((item,index) => `<div class="plan-item"><div class="plan-number">${index + 1}</div><div><small>${item.eyebrow} · ca. ${item.minutes} min</small><strong>${item.title}</strong><span>${item.meta}</span></div><button class="btn" data-action="daily-${item.type}" data-subject="${item.subjectId}" data-week="${item.weekId}" ${item.goalId ? `data-goal="${item.goalId}"` : ""} ${item.targetId ? `data-target="${item.targetId}"` : ""}>Start</button></div>`).join("")}</div><p class="overview-explainer">Planen markerer aldrig noget som gennemført. Den hjælper kun med at vælge næste handling.</p></section>`;
+}
+
+const dataToolsUI = { confirmReset:false };
+
+function exportStudyData() {
+  const items = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(PREFIX)) items[key] = localStorage.getItem(key);
+    }
+    const payload = JSON.stringify({ app:"studieoverblik", version:2, exportedAt:new Date().toISOString(), items }, null, 2);
+    const url = URL.createObjectURL(new Blob([payload], { type:"application/json" }));
+    const link = document.createElement("a"); link.href = url; link.download = `studieoverblik-backup-${todayISO()}.json`; link.click(); URL.revokeObjectURL(url);
+    toast("Backup hentet — gem filen et sikkert sted.");
+  } catch (error) { toast("Backup kunne ikke oprettes i denne browser."); }
+}
+
+function importStudyData(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(reader.result);
+      if (payload.app !== "studieoverblik" || !payload.items || typeof payload.items !== "object") throw new Error("invalid");
+      Object.entries(payload.items).forEach(([key,value]) => { if (key.startsWith(PREFIX) && typeof value === "string") localStorage.setItem(key, value); });
+      toast("Backup importeret. Siden opdateres nu."); setTimeout(() => location.reload(), 500);
+    } catch (error) { toast("Filen ligner ikke en gyldig Studieoverblik-backup."); }
+  };
+  reader.readAsText(file);
+}
+
+function resetPracticeData() {
+  const beginnings = [PREFIX + "quiz.", PREFIX + "adaptive.", PREFIX + "crossExam."];
+  const remove = [];
+  for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key && beginnings.some(start => key.startsWith(start))) remove.push(key); }
+  remove.forEach(key => localStorage.removeItem(key));
+  quizUI.exam = null; adaptiveUI.current = null; crossExamUI.caseId = null; crossExamUI.step = 0; dataToolsUI.confirmReset = false;
+  toast("Quiz- og eksamenstræning er nulstillet."); renderWeek(selectedWeekNow());
+}
+
+function renderDataTools() {
+  return `<details class="card data-tools fade-in"><summary><span><strong>Backup og dine data</strong><small>Flyt din progression eller nulstil træning</small></span><span aria-hidden="true">⌄</span></summary><div class="data-tools-body"><p class="quiet-note">Alt gemmes kun i denne browser. En backup indeholder dine markeringer, quizhistorik, planer og eksamenssvar — aldrig flowplansfiler eller OneNote-noter.</p><div class="nextstep-actions"><button class="btn btn-primary" data-action="data-export">Hent backup</button><label class="btn file-btn">Importér backup<input id="backupInput" type="file" accept="application/json,.json"></label><button class="btn danger-quiet" data-action="data-reset">Nulstil quizdata</button></div>${dataToolsUI.confirmReset ? `<div class="reset-confirm"><strong>Er du sikker?</strong><span>Statusser og aktivitetsafkrydsninger bevares. Quizhistorik, adaptiv træning og casebesvarelser slettes.</span><div class="nextstep-actions"><button class="btn danger" data-action="data-reset-confirm">Ja, nulstil</button><button class="btn" data-action="data-reset-cancel">Annuller</button></div></div>` : ""}</div></details>`;
+}
+
+function selectedWeekNow() {
+  return weeks.find(week => week.id === storageGet("selectedWeek." + activeSubjectId)) || weeks[0];
+}
+
+// =========================================================================
+// RENDER: selected week (next step, coverage/progress overview, goals,
+// checklist, recommendation)
+// =========================================================================
+function renderWeek(week) {
+  storageSet("selectedWeek." + week.subjectId, week.id);
+  const { pct, counts } = computeCoverage(week);
+  const activityProgress = weekActivityProgress(week);
+  const selftestKanCount = week.goals.filter(g => getSelftest(g.id) === "kan").length;
+
+  const goalsHtml = week.goals.map(g => {
+    const status = currentStatus(g);
+    const isOverridden = getStoredStatus(g.id) !== null;
+    const noteText = isOverridden ? "din vurdering (gemt lokalt i browseren)" : (g.note || "");
+    const statusButtons = ["covered", "partly", "missing"].map(s => `
+      <button class="${s === status ? "sel-" + s : ""}" data-action="set-status" data-goal="${g.id}" data-status="${s}">${statusLabel[s]}</button>
+    `).join("");
+
+    const selftestResult = getSelftest(g.id);
+    const selftestOpen = openSelftestPanels.has(g.id);
+    const resultButtons = ["kan", "oeve", "ikke"].map(r => `
+      <button class="${selftestResult === r ? "sel-" + r : ""}" data-action="set-selftest" data-goal="${g.id}" data-result="${r}">${selftestLabel[r]}</button>
+    `).join("");
+
+    return `
+      <div class="goal">
+        <div class="goal-row">
+          <div class="goal-text">${g.text}${noteText ? `<span class="goal-note">${noteText}</span>` : ""}</div>
+          <div class="status-control">${statusButtons}</div>
+        </div>
+        <button class="selftest-toggle" data-action="toggle-selftest" data-goal="${g.id}">
+          ${selftestOpen ? "Skjul selvtest ▲" : "Test dig selv ▼"}
+        </button>
+        <div class="selftest-panel" id="selftest-${g.id}" ${selftestOpen ? "" : 'style="display:none"'}>
+          <p class="selftest-prompt">${promptFor(g.id)}</p>
+          <div class="selftest-actions">${resultButtons}</div>
+          ${selftestResult ? `<div class="selftest-result-note">Din egen vurdering: <strong>${selftestLabel[selftestResult]}</strong> — ikke en facitliste, kun din registrering.</div>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+
+  const checklist = (label, type, items) => {
+    if (!items.length) return "";
+    const rows = items.map((text, i) => {
+      const id = activityId(week, type, i);
+      const done = isActivityDone(id);
+      return `
+        <li class="checkitem${done ? " done" : ""}">
+          <input type="checkbox" id="chk-${id}" data-action="toggle-activity" data-id="${id}" ${done ? "checked" : ""}>
+          <label for="chk-${id}">${text}</label>
+        </li>`;
+    }).join("");
+    return `<div class="eyebrow">${label}</div><ul class="checklist">${rows}</ul>`;
+  };
+
+  const noteLink = week.realNoteLink
+    ? `<p style="font-size:0.85rem;"><a href="${week.realNoteLink}" target="_blank">→ Se den faktiske note for denne uge</a></p>`
+    : "";
+
+  document.getElementById("todayContent").innerHTML = renderNextStep(week) + renderDailyPlan(week) + renderDataTools();
+
+  document.getElementById("weekContent").innerHTML = `
+    <section class="card fade-in">
+      <h2>${week.label} — ${week.title}</h2>
+      <div class="overview-stats">
+        <div>
+          <div class="overview-pct">${pct}%</div>
+          <div class="overview-label">${counts.covered} dækket · ${counts.partly} delvist · ${counts.missing} mangler</div>
+        </div>
+        <div>
+          <div class="overview-pct">${activityProgress.done}/${activityProgress.total}</div>
+          <div class="overview-label">aktiviteter markeret</div>
+        </div>
+        <div>
+          <div class="overview-pct">${selftestKanCount}/${week.goals.length}</div>
+          <div class="overview-label">selvtest: "kan forklare"</div>
+        </div>
+      </div>
+      <div class="overview-explainer">
+        Alt her er dit eget registrerede fremskridt — ikke en objektiv vurdering. Dækningsprocenten er et vægtet overblik (dækket = 100%, delvist = 50%, mangler = 0%), beregnet som (sum af status-værdier) / antal læringsmål.
+      </div>
+
+      <div class="eyebrow">Læringsmål</div>
+      ${goalsHtml}
+      ${noteLink}
+
+      ${checklist("Pensum", "reading", week.reading)}
+      ${checklist("Videoer", "video", week.videos)}
+      ${checklist("Opgaver / OLA", "task", week.tasks)}
+
+      <div class="eyebrow">Anbefaling</div>
+      <div class="recommendation">${week.recommendation}</div>
+    </section>
+  `;
+
+  document.getElementById("quizContent").innerHTML = renderQuizLibrary(week.id) + (renderQuizSection(week) || `
+    <section class="card fade-in">
+      <h2>Vælg et emne i quizbiblioteket</h2>
+      <p class="quiet-note">Denne uge har endnu ikke sin egen verificerede spørgsmålsbank. Du kan stadig bruge læringsmålets selvtest eller vælge et af emnerne ovenfor.</p>
+    </section>`);
+
+  wireWeekEvents(week);
+  renderExamPrep();
+  renderAllCurriculum();
+}
+
+function wireWeekEvents(week) {
+  document.querySelectorAll('[data-action="daily-activity"]').forEach(btn => btn.addEventListener("click", () => { activateSubject(btn.dataset.subject, btn.dataset.week); setView("week"); setTimeout(() => document.getElementById("chk-" + btn.dataset.target)?.scrollIntoView({ behavior:"smooth", block:"center" }), 0); }));
+  document.querySelectorAll('[data-action="daily-goal"]').forEach(btn => btn.addEventListener("click", () => { openSelftestPanels.add(btn.dataset.goal); activateSubject(btn.dataset.subject, btn.dataset.week); setView("week"); setTimeout(() => document.getElementById("selftest-" + btn.dataset.goal)?.scrollIntoView({ behavior:"smooth", block:"center" }), 0); }));
+  document.querySelectorAll('[data-action="daily-quiz"]').forEach(btn => btn.addEventListener("click", () => { activateSubject(btn.dataset.subject, btn.dataset.week); quizUI.mode = "basis"; quizUI.exam = null; setView("quiz"); }));
+  document.querySelectorAll('[data-action="data-export"]').forEach(btn => btn.addEventListener("click", exportStudyData));
+  const backupInput = document.getElementById("backupInput");
+  if (backupInput) backupInput.addEventListener("change", () => importStudyData(backupInput.files?.[0]));
+  document.querySelectorAll('[data-action="data-reset"]').forEach(btn => btn.addEventListener("click", () => { dataToolsUI.confirmReset = true; renderWeek(week); }));
+  document.querySelectorAll('[data-action="data-reset-cancel"]').forEach(btn => btn.addEventListener("click", () => { dataToolsUI.confirmReset = false; renderWeek(week); }));
+  document.querySelectorAll('[data-action="data-reset-confirm"]').forEach(btn => btn.addEventListener("click", resetPracticeData));
+
+  document.querySelectorAll('[data-action="set-status"]').forEach(btn => {
+    btn.addEventListener("click", () => { setStoredStatus(btn.dataset.goal, btn.dataset.status); renderWeek(week); renderMotivation(); });
+  });
+
+  document.querySelectorAll('[data-action="toggle-selftest"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (openSelftestPanels.has(btn.dataset.goal)) openSelftestPanels.delete(btn.dataset.goal);
+      else openSelftestPanels.add(btn.dataset.goal);
+      renderWeek(week);
+    });
+  });
+
+  document.querySelectorAll('[data-action="set-selftest"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      setSelftest(btn.dataset.goal, btn.dataset.result);
+      renderWeek(week);
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-activity"]').forEach(input => {
+    input.addEventListener("change", () => {
+      const wasDone = !input.checked; // state before this change, since it's already toggled in the DOM
+      setActivityDone(input.dataset.id, input.checked);
+      if (input.checked) {
+        toast(pick(msgActivityDone));
+        maybeCelebrateStreakOrGoal();
+      }
+      renderWeek(week);
+      renderMotivation();
+    });
+  });
+
+  document.querySelectorAll('[data-action="nextstep-done"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      setActivityDone(btn.dataset.id, true);
+      toast(pick(msgActivityDone));
+      maybeCelebrateStreakOrGoal();
+      renderWeek(week);
+      renderMotivation();
+    });
+  });
+  document.querySelectorAll('[data-action="nextstep-selftest"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      openSelftestPanels.add(btn.dataset.goal);
+      renderWeek(week);
+      const el = document.getElementById("selftest-" + btn.dataset.goal);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+  document.querySelectorAll('[data-action="nextstep-another"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const st = nextStepState[btn.dataset.week];
+      if (st) st.pointer++;
+      renderWeek(week);
+    });
+  });
+  document.querySelectorAll('[data-action="nextstep-skip"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const st = nextStepState[btn.dataset.week];
+      if (st) { st.sessionSkipped.add(btn.dataset.id); st.pointer++; }
+      renderWeek(week);
+    });
+  });
+
+  document.querySelectorAll('[data-action="open-quiz-bank"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const quizWeek = findSemesterWeek(btn.dataset.week);
+      if (!quizWeek) return;
+      quizUI.mode = "basis";
+      quizUI.exam = null;
+      activateSubject(quizWeek.subjectId, quizWeek.id);
+      setView("quiz");
+    });
+  });
+
+  wireQuizEvents(week);
+}
+
+function wireQuizEvents(week) {
+  const rerender = () => renderWeek(week);
+
+  document.querySelectorAll('[data-action="quiz-mode"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (quizUI.exam?.timerHandle) clearInterval(quizUI.exam.timerHandle);
+      quizUI.mode = btn.dataset.mode;
+      quizUI.exam = null;
+      rerender();
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-mc"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const q = findQuestion(week.id, btn.dataset.qid);
+      const picked = Number(btn.dataset.i);
+      storageSet("quiz.picked." + q.id, String(picked));
+      setQuizResult(q.id, picked === -1 ? "unsure" : (picked === q.correct ? "correct" : "incorrect"));
+      rerender();
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-tf"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const q = findQuestion(week.id, btn.dataset.qid);
+      const picked = btn.dataset.val;
+      if (picked === "unsure") setQuizResult(q.id, "unsure");
+      else {
+        storageSet("quiz.picked." + q.id, picked);
+        setQuizResult(q.id, String(q.correct) === picked ? "correct" : "incorrect");
+      }
+      rerender();
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-flash"]').forEach(el => {
+    el.addEventListener("click", () => { quizUI.flashSeen.add(el.dataset.qid); rerender(); });
+  });
+
+  document.querySelectorAll('[data-action="quiz-match-pick"]').forEach(select => {
+    select.addEventListener("change", () => {
+      const q = findQuestion(week.id, select.dataset.qid);
+      const answers = getMatchAnswers(q.id, q.terms.length);
+      answers[Number(select.dataset.i)] = Number(select.value);
+      setMatchAnswers(q.id, answers);
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-match-check"]').forEach(btn => {
+    btn.addEventListener("click", () => { storageSet("quiz.matchChecked." + btn.dataset.qid, "1"); rerender(); });
+  });
+
+  document.querySelectorAll('[data-action="quiz-checklist"]').forEach(input => {
+    input.addEventListener("change", () => {
+      const q = findQuestion(week.id, input.dataset.qid);
+      const values = getChecklistState(q.id, q.checklist.length);
+      values[Number(input.dataset.i)] = input.checked;
+      setChecklistState(q.id, values);
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-selfmark"]').forEach(btn => {
+    btn.addEventListener("click", () => { setSelfMark(btn.dataset.qid, btn.dataset.mark); rerender(); });
+  });
+
+  document.querySelectorAll('[data-action="quiz-reflect"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const text = document.querySelector(`textarea[data-qid="${btn.dataset.qid}"]`);
+      setReflected(btn.dataset.qid, text ? text.value : "");
+      rerender();
+    });
+  });
+
+  const timerToggle = document.getElementById("examTimerToggle");
+  if (timerToggle) timerToggle.addEventListener("change", () => storageSet("examTimerEnabled", timerToggle.checked ? "1" : "0"));
+
+  document.querySelectorAll('[data-action="quiz-exam-start"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const enabled = document.getElementById("examTimerToggle")?.checked !== false;
+      storageSet("examTimerEnabled", enabled ? "1" : "0");
+      startExamSession(week);
+      rerender();
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-exam-next"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      clearInterval(quizUI.exam?.timerHandle);
+      quizUI.exam.index++;
+      if (quizUI.exam.index < quizUI.exam.ids.length) armExamTimer(week);
+      rerender();
+    });
+  });
+
+  document.querySelectorAll('[data-action="quiz-exam-restart"]').forEach(btn => {
+    btn.addEventListener("click", () => { startExamSession(week); rerender(); });
+  });
+}
+
+function maybeCelebrateStreakOrGoal() {
+  // small, occasional extra nod — not on every click, so it stays meaningful
+  const weekCount = completionsThisCalendarWeek();
+  const goal = getWeeklyGoal();
+  if (weekCount === goal) setTimeout(() => toast(pick(msgWeeklyGoal)), 2800);
+  else if (weekCount === 1) setTimeout(() => toast(pick(msgStreakUp)), 2800);
+}
+
+// =========================================================================
+// NAV + BOOT
+// =========================================================================
+function renderSubjectNav() {
+  const nav = document.getElementById("subjectNav");
+  const subject = subjectCatalog[activeSubjectId];
+  nav.innerHTML = Object.entries(subjectCatalog).map(([id, item]) => `<button data-subject="${id}" class="${id === activeSubjectId ? "active" : ""}">${item.label}</button>`).join("");
+  document.getElementById("subjectSubtitle").textContent = subject.label + " · flowplan, aktiviteter, quiz og eksamenstræning";
+  document.getElementById("flowplanLink").textContent = "Kildegrundlag: " + subject.short + "-flowplan";
+  nav.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
+    activateSubject(btn.dataset.subject);
+  }));
+}
+
+function renderNav(activeId) {
+  const nav = document.getElementById("weekNav");
+  nav.innerHTML = weeks.map(w => `<button data-id="${w.id}" class="${w.id === activeId ? "active" : ""}">${w.label}</button>`).join("");
+  nav.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const week = weeks.find(w => w.id === btn.dataset.id);
+      renderNav(week.id);
+      renderWeek(week);
+    });
+  });
+}
+
+const allowedViews = ["today", "week", "quiz", "exam", "all"];
+let activeView = allowedViews.includes(storageGet("activeView")) ? storageGet("activeView") : "today";
+function setView(view) {
+  activeView = view;
+  storageSet("activeView", view);
+  document.querySelectorAll(".app-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
+  document.getElementById("todayView").hidden = view !== "today";
+  document.getElementById("weekView").hidden = view !== "week";
+  document.getElementById("quizView").hidden = view !== "quiz";
+  document.getElementById("examView").hidden = view !== "exam";
+  document.getElementById("allView").hidden = view !== "all";
+}
+
+document.querySelectorAll(".app-tab").forEach(btn => {
+  btn.addEventListener("click", () => setView(btn.dataset.view));
+});
+
+// Installable app support. The ordinary file:// version still works; app
+// installation and offline caching activate only through the local launcher.
+let deferredInstallPrompt = null;
+const installAppButton = document.getElementById("installAppButton");
+const iosInstallDialog = document.getElementById("iosInstallDialog");
+const isIOSDevice = typeof navigator !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandaloneApp = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true);
+if (typeof window !== "undefined") {
+  if (isIOSDevice && !isStandaloneApp) {
+    installAppButton.hidden = false;
+    installAppButton.textContent = "Installér på iPhone";
+  }
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installAppButton.hidden = false;
+  });
+  installAppButton.addEventListener("click", async () => {
+    if (isIOSDevice && !deferredInstallPrompt) { iosInstallDialog.showModal(); return; }
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    if (choice.outcome === "accepted") toast("Studieoverblik er installeret som app.");
+    deferredInstallPrompt = null;
+    installAppButton.hidden = true;
+  });
+  window.addEventListener("appinstalled", () => { installAppButton.hidden = true; });
+}
+if (typeof navigator !== "undefined" && "serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+
+renderMotivation();
+renderSubjectNav();
+const initialWeek = weeks.find(w => w.id === storageGet("selectedWeek." + activeSubjectId)) || weeks[0];
+renderNav(initialWeek.id);
+renderWeek(initialWeek);
+setView(activeView);
+</script>
+
+</body>
+</html>

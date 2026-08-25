@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Studieoverblik">
+  <rect width="512" height="512" rx="112" fill="#123d2c"/>
+  <path d="M112 137c0-21 17-38 38-38h106v282H150c-21 0-38-17-38-38V137Z" fill="#f8fbf7"/>
+  <path d="M400 137c0-21-17-38-38-38H256v282h106c21 0 38-17 38-38V137Z" fill="#e5f4ec"/>
+  <path d="M256 118v283" stroke="#277154" stroke-width="20" stroke-linecap="round"/>
+  <path d="m303 247 35 35 68-82" fill="none" stroke="#f4ce67" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M144 164h72M144 213h72M144 262h55" stroke="#277154" stroke-width="18" stroke-linecap="round"/>
+</svg>
