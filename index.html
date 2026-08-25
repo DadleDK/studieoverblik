@@ -552,7 +552,7 @@
   </section>
 
   <div class="claude-note">
-    <strong>Om status, selvtest og Claude:</strong> Claude kan foreslå status for et læringsmål, når det officielle flowplan faktisk sammenholdes med de noter, du selv giver adgang til. Appen påstår aldrig, at noter er vurderet, hvis sammenligningen ikke er udført. Selvtest retter ikke åbne svar og påstår ikke, at du kan stoffet — kun du sætter markeringerne.
+    <strong>Om status, selvtest og Claude:</strong> Claude kan foreslå status for et læringsmål, når flowplanens læringsmål faktisk er sammenholdt med de afledte noter. Det er nu gjort for EØ uge 35, 36 og 37. Appen påstår aldrig, at andre noter er vurderet uden en konkret sammenligning. Selvtest retter ikke åbne svar og påstår ikke, at du kan stoffet — kun du sætter markeringerne.
   </div>
 </main>
 
@@ -643,12 +643,24 @@ const eoWeeks = [
   {
     id: "uge35", label: "Uge 35", title: "Rentabilitetsanalyse (Du-Pont-modellen)",
     goals: [
-      { id: "uge35-g1", text: "Kunne udregne og kommentere relevante nøgletal i en rentabilitetsanalyse efter Du-Pont-modellen.", status: "partly", note: "eksempel — ikke en reel vurdering" },
+      { id: "uge35-g1", text: "Kunne udregne og kommentere relevante nøgletal i en rentabilitetsanalyse efter Du-Pont-modellen.", status: "covered", note: "baseret på faktisk sammenligning med den afledte note" },
     ],
     reading: ["ØS: Kap. 9 t.o.m. 9.6.1"],
     videos: ["Rentabilitetsanalyse", "Sammenhæng mellem afsætning og omsætning"],
     tasks: ["Opgave 9.2", "Opgave 9.4"],
-    recommendation: "Gense videoen \"Rentabilitetsanalyse\" og tjek om Du-Pont-identiteten (AG = OG × AOH) er noteret med et taleksempel.",
+    recommendation: "Din note dækker Du-Pont-identiteten, løftestangen og et taleksempel. Brug nu opgave 9.2 og 9.4 til at træne beregning og kommentering; aktiviteterne markeres kun, når du selv gennemfører dem.",
+    realNoteLink: null,
+  },
+  {
+    id: "uge36", label: "Uge 36", title: "Indtjeningsanalyse",
+    goals: [
+      { id: "uge36-g1", text: "Kunne udregne og kommentere relevante nøgletal i en indtjeningsanalyse efter Du-Pont-modellen.", status: "partly", note: "baseret på faktisk sammenligning — opgave 9.5 mangler stadig" },
+    ],
+    reading: ["ØS: Kap. 9.6.2"],
+    videos: ["Indtjeningsevne", "Eksempel på kommentering"],
+    tasks: ["Opgave 9.5", "Delanalyse 1: ekstern analyse, rentabilitet, indtjeningsevne og følsomhed/risiko"],
+    recommendation: "Noten dækker formler og Matas-eksempler, men markerer selv opgave 9.5 som uløst. Regn den som næste skridt og brug bagefter kommenteringsvideoen til at kontrollere din forklaring.",
+    realNoteLink: null,
   },
   {
     id: "uge37", label: "Uge 37", title: "Kapitaltilpasning, Soliditet & Likviditet",
@@ -741,8 +753,8 @@ function activateSubject(subjectId, preferredWeekId) {
 // Every question object below (basis/anvendelse per weekId) is paraphrased
 // (not copied as long passages) from an actually-inspected source, cited
 // via its own `source`/`sourceLabel` field. Coverage is uneven on purpose:
-// only the weeks listed here (currently uge37, org34teams, org34strategy,
-// sm34pestel) have hand-verified fact questions. Every OTHER learning goal
+// only the weeks listed here (currently uge34a, uge35, uge36, uge37,
+// org34teams, org34strategy, sm34pestel) have hand-verified fact questions. Every OTHER learning goal
 // still gets practice via `goalDrillsForWeek()` further down — open,
 // ungrounded, ungraded self-reflection prompts templated from the goal's
 // own flowplan text, never presented as a verified fact. `getQuizBank()`
@@ -757,6 +769,54 @@ function activateSubject(subjectId, preferredWeekId) {
 // self-reflection instead, not a fact claim.
 // =========================================================================
 const quizBanks = {
+  uge34a: {
+    basis: [
+      { id:"u34a-b1", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"mc", prompt:"Hvordan påvirkes en omkostningskonto normalt, når omkostningen stiger?", options:["Den krediteres","Den debiteres","Den påvirkes ikke","Den lukkes direkte mod egenkapitalen"], correct:1, explanation:"Omkostninger øges i debet og mindskes i kredit." },
+      { id:"u34a-b2", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"mc", prompt:"Hvordan påvirkes en indtægtskonto normalt, når indtægten stiger?", options:["Den debiteres","Den krediteres","Den flyttes til aktiver","Den påvirkes ikke"], correct:1, explanation:"Indtægter øges i kredit og mindskes i debet." },
+      { id:"u34a-b3", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"tf", prompt:"Aktiver som varebeholdning, kundefordringer og bank øges i debet.", correct:true, explanation:"Aktivkonti har debetsaldo: de øges i debet og mindskes i kredit." },
+      { id:"u34a-b4", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"tf", prompt:"Leverandørgæld og banklån øges i debet.", correct:false, explanation:"Gæld er en passivpost og øges derfor i kredit; den mindskes i debet." },
+      { id:"u34a-b5", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"match", prompt:"Match kontotype og den side, hvor kontoen øges.", terms:["Omkostning","Indtægt","Aktiv","Passiv"], defs:["Debet","Kredit","Debet","Kredit"], explanation:"Omkostninger og aktiver øges i debet. Indtægter, egenkapital og gæld øges i kredit." },
+      { id:"u34a-b6", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"flash", prompt:"Huskeregel: Hvilke hovedgrupper har normalt debetsaldo?", back:"Omkostninger og aktiver." },
+    ],
+    anvendelse: [
+      { id:"u34a-a1", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"mc", scenario:"Virksomheden køber varer på kredit. Varebeholdningen og leverandørgælden stiger.", prompt:"Hvilken kombination følger oversigten?", options:["Varebeholdning kredit; leverandørgæld debet","Varebeholdning debet; leverandørgæld kredit","Begge debet","Begge kredit"], correct:1, explanation:"Varebeholdning er et aktiv og øges i debet. Leverandørgæld er et passiv og øges i kredit." },
+      { id:"u34a-a2", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"mc", scenario:"En kunde betaler kontant for en vare, så bankbeholdningen og salgsindtægten stiger.", prompt:"Hvordan øges de to konti?", options:["Bank i debet og salgsindtægt i kredit","Bank i kredit og salgsindtægt i debet","Begge i debet","Begge i kredit"], correct:0, explanation:"Bank er et aktiv og øges i debet; salgsindtægten øges i kredit." },
+      { id:"u34a-a3", goalId:"uge34a-g2", source:"note", sourceLabel:"OneNote-afledt note · EØ · Debet/kredit-oversigt", type:"self", prompt:"Lav selv tre posteringer: én omkostning, én indtægt og én balancepost. Forklar for hver, hvorfor kontoen går i debet eller kredit.", checklist:["Klassificerer kontoen korrekt","Bruger reglen om, hvor kontotypen øges og mindskes","Forklarer begge sider af hver postering"] },
+    ],
+  },
+  uge35: {
+    basis: [
+      { id:"u35-b1", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"flash", prompt:"Du-Pont-identiteten: Hvordan beregnes afkastningsgraden?", back:"AG = OG × AOH." },
+      { id:"u35-b2", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"mc", prompt:"Hvad viser overskudsgraden?", options:["Hvor mange gange aktiverne omsættes","Hvor stor en del af omsætningen der bliver til resultat af primær drift","Hvor meget gæld virksomheden har","Hvor stor en del af aktiverne der er anlægsaktiver"], correct:1, explanation:"OG = resultat af primær drift / nettoomsætning og viser indtjeningen pr. omsætningskrone." },
+      { id:"u35-b3", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"flash", prompt:"Formel: Aktivernes omsætningshastighed?", back:"AOH = Nettoomsætning / Gennemsnitlige aktiver." },
+      { id:"u35-b4", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"mc", prompt:"Hvad kaldes forskellen AG − FKF?", options:["Bruttomarginen","Rentemarginalen","Sikkerhedsmarginen","Kapacitetsgraden"], correct:1, explanation:"Rentemarginalen viser forskellen mellem afkastet på kapitalen og prisen på fremmedkapitalen." },
+      { id:"u35-b5", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"tf", prompt:"En positiv rentemarginal betyder, at fremmedkapitalen kan løfte egenkapitalens forrentning.", correct:true, explanation:"Når AG er højere end FKF, bidrager gældsfinansieringen positivt til EKF via den finansielle løftestang." },
+      { id:"u35-b6", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"match", prompt:"Match nøgletal og formel.", terms:["OG","AOH","EKF","FKF"], defs:["Resultat af primær drift / Nettoomsætning","Nettoomsætning / Gennemsnitlige aktiver","Årets resultat / Gennemsnitlig egenkapital","Renteomkostninger / Gennemsnitlig fremmedkapital"], explanation:"De fire nøgletal forbinder drift, kapitaludnyttelse, ejernes afkast og låneomkostningen." },
+    ],
+    anvendelse: [
+      { id:"u35-a1", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"mc", scenario:"En virksomhed har OG på 9,4 % og AOH på 0,73.", prompt:"Hvad er afkastningsgraden omtrent?", options:["6,9 %","9,4 %","12,9 %","0,69 %"], correct:0, explanation:"AG = 9,4 % × 0,73 ≈ 6,9 %." },
+      { id:"u35-a2", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"mc", prompt:"Hvordan kan to virksomheder få samme AG med meget forskellige forretningsmodeller?", options:["AG afhænger ikke af driften","En høj OG kan opveje en lav AOH og omvendt","De skal have samme omsætning","De skal have samme gæld"], correct:1, explanation:"Du-Pont-identiteten gør det muligt at nå samme AG via forskellige kombinationer af margin og kapitaludnyttelse." },
+      { id:"u35-a3", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"tf", scenario:"AG falder under FKF, mens den finansielle gearing er høj.", prompt:"Den finansielle løftestang vil i denne situation typisk trække EKF ned.", correct:true, explanation:"Når rentemarginalen er negativ, forstærker høj gearing den negative virkning på ejernes afkast." },
+      { id:"u35-a4", goalId:"uge35-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 35", type:"self", scenario:"Du får OG, AOH, FKF og finansiel gearing for en virksomhed over tre år.", prompt:"Lav en kort eksamenskommentar til udviklingen i AG og EKF.", checklist:["Beregner eller forbinder AG med OG × AOH","Vurderer rentemarginalens fortegn","Forklarer gearingens virkning og konkluderer på udviklingen"] },
+    ],
+  },
+  uge36: {
+    basis: [
+      { id:"u36-b1", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"flash", prompt:"Formel: Bruttoavanceprocent/bruttomargin?", back:"Bruttofortjeneste / Omsætning × 100." },
+      { id:"u36-b2", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"mc", prompt:"Hvorfor er EBITDA interessant i en indtjeningsanalyse?", options:["Det inkluderer kun skat","Det viser resultat før af- og nedskrivninger, som ikke er kontante omkostninger","Det er det samme som omsætning","Det måler kun gælden"], correct:1, explanation:"EBITDA isolerer driften før af- og nedskrivninger og giver derfor et andet blik på indtjeningen og likviditetspåvirkningen." },
+      { id:"u36-b3", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"tf", prompt:"Et stort procentvist indeksspring på et lille beløb kan uden videre vægte mere end en mindre ændring på et stort beløb.", correct:false, explanation:"Indekstal skal altid vurderes sammen med de absolutte kronebeløb." },
+      { id:"u36-b4", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"flash", prompt:"Formel: Driftsmæssig gearing?", back:"Kapacitetsomkostninger / Samlede driftsomkostninger × 100." },
+      { id:"u36-b5", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"mc", prompt:"Hvordan angives kapacitetsgraden?", options:["Som antal gange","Altid i procent","I kroner pr. medarbejder","Som en indeksværdi med basis 100"], correct:0, explanation:"KG = bruttoresultat / kapacitetsomkostninger og angives som antal gange." },
+      { id:"u36-b6", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"match", prompt:"Match nøgletal og det, det beskriver.", terms:["Bruttomargin","Driftsmæssig gearing","Nulpunktsomsætning","Sikkerhedsmargin"], defs:["Indtjening efter vareforbrug pr. omsætningskrone","Andelen af faste kapacitetsomkostninger i de samlede driftsomkostninger","Omsætningen hvor driftsresultatet netop er nul","Hvor meget omsætningen kan falde relativt, før nulpunktet nås"], explanation:"Nøgletallene går fra indtjeningens sammensætning til virksomhedens følsomhed over for omsætningsfald." },
+      { id:"u36-b7", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"tf", prompt:"Finansielle omkostninger og skat indgår i de samlede driftsomkostninger, når driftsmæssig gearing beregnes.", correct:false, explanation:"Kilden afgrænser samlede driftsomkostninger til kapacitetsomkostninger plus vareforbrug; finansielle omkostninger og skat indgår ikke." },
+    ],
+    anvendelse: [
+      { id:"u36-a1", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"mc", scenario:"To virksomheder mister 10 % af omsætningen. Virksomhed A har langt højere driftsmæssig gearing end B.", prompt:"Hvilken virksomhed får normalt det største relative fald i driftsresultatet?", options:["A, fordi flere omkostninger er faste","B, fordi flere omkostninger er faste","De rammes altid ens","Det kan kun afhænge af skatten"], correct:0, explanation:"Når en større del af omkostningerne er faste, forsvinder færre omkostninger sammen med salget, og driftsresultatet rammes hårdere." },
+      { id:"u36-a2", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"mc", prompt:"Hvilken ændring kan forklare en lavere bruttomargin?", options:["Lavere indkøbspriser alt andet lige","Højere salgspriser alt andet lige","Forskydning mod produktgrupper med lavere margin","Lavere kapacitetsomkostninger"], correct:2, explanation:"Produktsammensætningen kan ændre den samlede bruttomargin, når produktgrupper har forskellige marginer." },
+      { id:"u36-a3", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"mc", scenario:"Faktisk omsætning er 4.490 mio. kr., og nulpunktsomsætningen er 3.547 mio. kr.", prompt:"Hvad er sikkerhedsmarginen omtrent?", options:["9,4 %","17,9 %","21,0 %","39,1 %"], correct:2, explanation:"(4.490 − 3.547) / 4.490 × 100 ≈ 21,0 %." },
+      { id:"u36-a4", goalId:"uge36-g1", source:"note", sourceLabel:"OneNote-afledt note + officielt EØ-flowplan · Uge 36", type:"self", scenario:"Du sammenligner en servicevirksomhed, en handelsvirksomhed og en produktionsvirksomhed.", prompt:"Hvordan kommenterer du forskelle i indtjeningsevne uden at overfortolke nøgletallene?", checklist:["Forklarer forskelle i omkostningsstruktur","Bruger både procenttal og absolutte beløb","Nævner at branche og virksomhedstype begrænser direkte sammenligning"] },
+    ],
+  },
   uge37: {
     basis: [
       {

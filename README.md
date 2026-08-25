@@ -11,3 +11,5 @@ Appen er statisk og gemmer kun brugerens progression lokalt i browseren. Den har
 ## Datagrundlag og begrænsninger
 
 Semesterstrukturen er baseret på officielle flowplaner. Selve flowplansfilerne, OneNote-arkivet og øvrige studienoter er ikke en del af denne offentlige repository. Faktaspørgsmål findes kun, hvor en kilde tidligere er blevet gennemgået; resten er tydeligt mærkede, åbne selvøvelser.
+
+Den aktuelle version har kildebaseret EØ-træning til bogføring/debet-kredit samt uge 35, 36 og 37. Opgaver og videoer markeres aldrig automatisk som gennemført.
