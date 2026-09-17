@@ -862,12 +862,12 @@
 
   <section class="view" id="todayView">
     <div id="factFeedContent"></div>
-    <section class="card fade-in" id="motivationCard"></section>
-    <div id="todayContent"></div>
   </section>
 
   <section class="view" id="weekView" hidden>
     <div class="view-intro"><h2>Ugens overblik</h2><p>Vælg en uge og markér kun det, du selv har arbejdet med.</p></div>
+    <section class="card fade-in" id="motivationCard"></section>
+    <div id="todayContent"></div>
     <nav class="weeks" id="weekNav"></nav>
     <div id="weekContent"></div>
   </section>
@@ -1042,7 +1042,7 @@ const orgWeeks = [
   { id:"org38", subjectId:"org", label:"Uge 38", title:"Motivation & udvikling", goals:[{ id:"org38-g1", text:"Kunne anvende Herzberg, Maslow, Lawler og primadonnaledelse samt jobudvidelse og jobberigelse.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 5: s. 143-147, 150-154 og 161-171"], videos:["Intro til motivation","Lawlers motivationsteori","Jobdesign og motivation"], tasks:["Jobindex-persontypetest"], recommendation:"Sammenlign teorierne og forklar, hvilken handling en leder bør vælge i en case." },
   { id:"org39", subjectId:"org", label:"Uge 39", title:"Selvledelse & værdibaseret ledelse", goals:[{ id:"org39-g1", text:"Forstå værdibaseret ledelse, selvledelse og Daniel Pinks Motivation 3.0.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 7","Kap. 5, afsnit 5.5"], videos:["Intro til selvledelse","Daniel Pink Motivation 3.0"], tasks:["OLA 3.1 endelig"], recommendation:"Forklar konsekvenserne af selvledelse for både medarbejder og leder." },
   { id:"org40", subjectId:"org", label:"Uge 40", title:"Forandringer", goals:[{ id:"org40-g1", text:"Kunne anvende Kotter, Leavitt/STOP, forandringstyper og internt/eksternt forandringspres.", status:"missing", note:"ikke vurderet endnu" }], reading:["Organisation og ledelse: kap. 10"], videos:["The Iceberg Is Melting"], tasks:["Find forandringer i din branche og planlæg implementering"], recommendation:"Brug Kotters proces på et konkret løsningsforslag." },
-  { id:"org41csr", subjectId:"org", label:"Uge 41", title:"CSR & ESG", goals:[{ id:"org41csr-g1", text:"Forstå grønne strategier, Carrolls fire ansvarstyper samt mål for CSR, ESG og verdensmål.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 2, afsnit 2.5"], videos:[], tasks:["Kobl CSR/ESG til organisationens strategi"], recommendation:"Flowplanen nævner Carrolls model, grønne strategier og FN's verdensmål under \"Styr på\" — men din afledte note dækker (efter faktisk at have læst kap. 2, s. 36-37) kun ESG-rammen og hygiejnevilkår-tankegangen; de tre andre emner er ikke uddybet noget sted i dine noter. Slå dem selv op i bogen eller spørg underviseren, før du regner dem for øvet." },
+  { id:"org41csr", subjectId:"org", label:"Uge 41", title:"CSR & ESG", goals:[{ id:"org41csr-g1", text:"Forstå grønne strategier, Carrolls fire ansvarstyper samt mål for CSR, ESG og verdensmål.", status:"missing", note:"ikke vurderet endnu" }], reading:["Kap. 2, afsnit 2.5"], videos:[], tasks:["Kobl CSR/ESG til organisationens strategi"], recommendation:"Flowplanen nævner Carrolls model, grønne strategier og FN's verdensmål. Din afledte note dækker kun ESG-rammen og hygiejnevilkår-tankegangen; quizzen supplerer derfor de øvrige flowplan-emner med tydeligt mærkede primærkilder fra Carroll, FN og UN Global Compact. Brug fortsat underviserens eller bogens udlægning, hvis den afviger." },
   { id:"org41exam", subjectId:"org", label:"Uge 41 (2)", title:"Opsamling & eksamensforberedelse", goals:[{ id:"org41exam-g1", text:"Kunne vælge og anvende semestrets organisationsteorier i et løsningsforslag.", status:"missing", note:"ikke vurderet endnu" }], reading:["Alle læringsmål i flowplanen"], videos:[], tasks:["Forbered mundtlig tværfaglig eksamen"], recommendation:"Øv modelvalg: Hvilken teori forklarer bedst problemet, og hvilken handling følger af analysen?" }
 ];
 
@@ -1324,16 +1324,21 @@ function kildeLabel(source) {
   if (source === "note") return "en afledt note (se emnets egen kildeliste)";
   if (source === "slides") return "undervisningsslides (se emnets egen kildeliste)";
   if (source === "flowplan") return "flowplanens læringsmål for dette emne";
+  if (source === "external") return "supplerende ekstern kilde";
   return "flowplanens læringsmål + en afledt note";
 }
 function questionShell(week, q, innerHtml) {
+  const sourceLabel = q.sourceLabel || kildeLabel(q.source);
+  const sourceHtml = q.sourceUrl
+    ? `<a href="${q.sourceUrl}" target="_blank" rel="noopener noreferrer">${sourceLabel}</a>`
+    : sourceLabel;
   return `
     <div class="question-card" data-qid="${q.id}">
       <div class="question-goal-tag">${goalTag(week, q.goalId)}</div>
       ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ""}
       <div class="question-prompt">${q.prompt}</div>
       ${innerHtml}
-      <details class="question-kilde"><summary>Kilde</summary>${q.sourceLabel || kildeLabel(q.source)}</details>
+      <details class="question-kilde"><summary>Kilde</summary>${sourceHtml}</details>
     </div>`;
 }
 
