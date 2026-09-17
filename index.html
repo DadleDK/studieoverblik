@@ -710,6 +710,45 @@
     .topic-progress { flex:0 0 70%; scroll-snap-align:start; }
     .claude-note { margin-bottom:1rem; }
   }
+
+  /* ---------- "For dig" curriculum feed ---------- */
+  .fact-feed { padding:0; overflow:hidden; background:linear-gradient(145deg,#17182f,#29245f 62%,#5147c7); color:white; border:0; }
+  .fact-feed-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; padding:1.35rem 1.45rem 1rem; }
+  .fact-feed-head h2 { color:white; margin:.08rem 0 .25rem; font-size:1.45rem; }
+  .fact-feed-head p { color:rgba(255,255,255,.65); margin:0; font-size:.84rem; }
+  .fact-feed-kicker { display:flex; align-items:center; gap:.4rem; color:#aaa3ff; font-size:.69rem; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+  .fact-feed-kicker::before { content:""; width:.48rem; height:.48rem; border-radius:50%; background:#28d6b1; box-shadow:0 0 0 5px rgba(40,214,177,.12); }
+  .fact-refresh { flex:0 0 auto; color:white; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); min-height:38px; }
+  .fact-refresh:hover { border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.16); }
+  .fact-feed-list { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(280px,42%); gap:.85rem; overflow-x:auto; padding:.2rem 1.45rem 1.4rem; scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .fact-feed-list::-webkit-scrollbar { display:none; }
+  .fact-card { position:relative; min-height:260px; display:flex; flex-direction:column; scroll-snap-align:start; padding:1.15rem; color:var(--text); border-radius:20px; overflow:hidden; background:linear-gradient(145deg,#fff,#f2f0ff); box-shadow:0 14px 30px rgba(6,7,29,.2); }
+  .fact-card:nth-child(3n+2) { background:linear-gradient(145deg,#e9fff9,#f8fffd); }
+  .fact-card:nth-child(3n+3) { background:linear-gradient(145deg,#fff4d6,#fffaf0); }
+  .fact-card::after { content:"✦"; position:absolute; right:-.3rem; bottom:-1.5rem; font-size:6rem; color:rgba(97,87,231,.07); transform:rotate(12deg); }
+  .fact-card-meta { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; gap:.5rem; margin-bottom:.8rem; }
+  .fact-subject { display:inline-flex; align-items:center; gap:.35rem; color:var(--accent-deep); background:rgba(97,87,231,.1); border-radius:999px; padding:.3rem .55rem; font-size:.68rem; font-weight:850; }
+  .fact-difficulty { color:var(--muted); font-size:.68rem; font-weight:750; }
+  .fact-question { position:relative; z-index:1; color:var(--muted); font-size:.75rem; line-height:1.4; margin-bottom:.48rem; }
+  .fact-answer { position:relative; z-index:1; font-size:1.04rem; line-height:1.42; font-weight:820; letter-spacing:-.02em; }
+  .fact-explanation { position:relative; z-index:1; color:var(--muted); font-size:.78rem; line-height:1.45; margin:.55rem 0 .9rem; }
+  .fact-card-footer { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-end; gap:.75rem; margin-top:auto; }
+  .fact-topic { color:var(--muted); font-size:.68rem; line-height:1.3; }
+  .fact-quiz-btn { min-height:35px; padding:.38rem .65rem; border-radius:10px; border:0; color:white; background:#1c1d3a; font:inherit; font-size:.72rem; font-weight:800; cursor:pointer; }
+  .fact-quiz-btn:hover { background:var(--accent); transform:translateY(-1px); }
+  .fact-feed-progress { display:none; }
+  @media (max-width:560px) {
+    .fact-feed { margin-left:-.15rem; margin-right:-.15rem; border-radius:22px; }
+    .fact-feed-head { padding:1.15rem 1rem .85rem; }
+    .fact-feed-head h2 { font-size:1.28rem; }
+    .fact-feed-head p { max-width:14rem; }
+    .fact-refresh { width:38px; padding:0; font-size:0; border-radius:50%; }
+    .fact-refresh::before { content:"↻"; font-size:1.1rem; }
+    .fact-feed-list { grid-auto-columns:88%; gap:.7rem; padding:.15rem 1rem 1rem; }
+    .fact-card { min-height:276px; border-radius:18px; }
+    .fact-answer { font-size:1.08rem; }
+    .fact-feed-progress { display:block; color:rgba(255,255,255,.5); font-size:.68rem; padding:0 1rem 1rem; }
+  }
 </style>
 </head>
 <body>
@@ -740,6 +779,7 @@
   <nav class="subject-nav" id="subjectNav" aria-label="Vælg fag"></nav>
 
   <section class="view" id="todayView">
+    <div id="factFeedContent"></div>
     <section class="card fade-in" id="motivationCard"></section>
     <div id="todayContent"></div>
   </section>
@@ -2110,6 +2150,82 @@ function renderNextStep(week) {
 }
 
 // =========================================================================
+// FOR DIG — a fresh, source-grounded curriculum feed on every app launch.
+// Facts are derived from the curated quiz banks, so future subjects and
+// semesters automatically appear here when their data pack is registered.
+// =========================================================================
+let factFeedSeed = Math.random();
+
+function factFromQuestion(q, week) {
+  let answer = "";
+  let explanation = q.explanation || "";
+  if (q.type === "mc" && Array.isArray(q.options) && Number.isInteger(q.correct)) answer = q.options[q.correct] || "";
+  else if (q.type === "tf") answer = q.correct ? "Sandt" : "Falsk";
+  else if (q.type === "flash") { answer = q.back || ""; explanation = ""; }
+  if (!answer) return null;
+  return {
+    id:q.id, weekId:week.id, subjectId:week.subjectId,
+    prompt:q.scenario ? `${q.scenario} ${q.prompt}` : q.prompt,
+    answer, explanation, difficulty:q.difficulty || 1,
+    subject:subjectCatalog[week.subjectId].short, topic:week.title,
+  };
+}
+
+function curriculumFactPool() {
+  return allSemesterWeeks().flatMap(week => {
+    const bank = getQuizBank(week.id);
+    return [...bank.basis, ...bank.anvendelse]
+      .map(q => factFromQuestion(q, week))
+      .filter(fact => fact && !/QUIZ-ARCHITECTURE|ikke dokumenteret|ikke dækket af nogen/i.test(fact.explanation));
+  });
+}
+
+function seededFactShuffle(items, seed) {
+  const copy = [...items];
+  let state = Math.floor(seed * 2147483647) || 1;
+  for (let i = copy.length - 1; i > 0; i--) {
+    state = state * 16807 % 2147483647;
+    const j = state % (i + 1);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function renderFactFeed() {
+  const facts = seededFactShuffle(curriculumFactPool(), factFeedSeed).slice(0, 10);
+  const cards = facts.map(fact => `
+    <article class="fact-card">
+      <div class="fact-card-meta"><span class="fact-subject">${fact.subject}</span><span class="fact-difficulty">Niveau ${fact.difficulty}</span></div>
+      <div class="fact-question">Vidste du? · ${fact.prompt}</div>
+      <div class="fact-answer">${fact.answer}</div>
+      ${fact.explanation ? `<div class="fact-explanation">${fact.explanation}</div>` : ""}
+      <div class="fact-card-footer">
+        <span class="fact-topic">${fact.topic}</span>
+        <button class="fact-quiz-btn" data-action="fact-quiz" data-subject="${fact.subjectId}" data-week="${fact.weekId}">Quiz mig →</button>
+      </div>
+    </article>`).join("");
+  return `<section class="card fact-feed fade-in">
+    <div class="fact-feed-head"><div><div class="fact-feed-kicker">For dig</div><h2>Scroll dig klogere</h2><p>Små facts fra dit aktuelle pensum — ny blanding hver gang.</p></div><button class="btn fact-refresh" data-action="fact-refresh">Ny blanding ↻</button></div>
+    <div class="fact-feed-list">${cards}</div>
+    <div class="fact-feed-progress">Swipe for flere →</div>
+  </section>`;
+}
+
+function wireFactFeed() {
+  document.querySelectorAll('[data-action="fact-refresh"]').forEach(btn => btn.addEventListener("click", () => {
+    factFeedSeed = Math.random();
+    const week = findSemesterWeek(storageGet("selectedWeek." + activeSubjectId)) || weeks[0];
+    renderWeek(week);
+  }));
+  document.querySelectorAll('[data-action="fact-quiz"]').forEach(btn => btn.addEventListener("click", () => {
+    quizUI.mode = "basis"; quizUI.exam = null;
+    activateSubject(btn.dataset.subject, btn.dataset.week);
+    setView("quiz");
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }));
+}
+
+// =========================================================================
 // RENDER: motivation card (global — not tied to the selected week)
 // =========================================================================
 function renderMotivation() {
@@ -2275,6 +2391,7 @@ function renderWeek(week) {
     ? `<p style="font-size:0.85rem;"><a href="${week.realNoteLink}" target="_blank">→ Se den faktiske note for denne uge</a></p>`
     : "";
 
+  document.getElementById("factFeedContent").innerHTML = renderFactFeed();
   document.getElementById("todayContent").innerHTML = renderNextStep(week) + renderDailyPlan(week) + renderDataTools();
 
   document.getElementById("weekContent").innerHTML = `
@@ -2318,6 +2435,7 @@ function renderWeek(week) {
     </section>`);
 
   wireWeekEvents(week);
+  wireFactFeed();
   renderExamPrep();
   renderAllCurriculum();
 }
@@ -2547,7 +2665,9 @@ function renderNav(activeId) {
 }
 
 const allowedViews = ["today", "week", "quiz", "exam", "all"];
-let activeView = allowedViews.includes(storageGet("activeView")) ? storageGet("activeView") : "today";
+// Always land on the home feed after a fresh app launch. Navigation within
+// the current session still behaves normally.
+let activeView = "today";
 function setView(view) {
   activeView = view;
   storageSet("activeView", view);
