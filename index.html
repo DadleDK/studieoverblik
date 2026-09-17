@@ -2279,7 +2279,10 @@ function seededFactShuffle(items, seed) {
 }
 
 function renderFactFeed() {
-  const facts = seededFactShuffle(curriculumFactPool(), factFeedSeed).slice(0, 10);
+  // Render the full auto-gradable curriculum pool in a fresh order. This
+  // gives the home screen a genuinely long feed without repeating a card
+  // before the available bank has been exhausted.
+  const facts = seededFactShuffle(curriculumFactPool(), factFeedSeed);
   const cards = facts.map(fact => `
     <article class="fact-card">
       <div class="fact-card-meta"><span class="fact-subject">${fact.subject}</span><span class="fact-difficulty">Niveau ${fact.difficulty}</span></div>
@@ -2292,9 +2295,9 @@ function renderFactFeed() {
       </div>
     </article>`).join("");
   return `<section class="card fact-feed fade-in">
-    <div class="fact-feed-head"><div><div class="fact-feed-kicker">For dig</div><h2>Scroll dig klogere</h2><p>Små facts fra dit aktuelle pensum — ny blanding hver gang.</p></div><button class="btn fact-refresh" data-action="fact-refresh">Ny blanding ↻</button></div>
+    <div class="fact-feed-head"><div><div class="fact-feed-kicker">For dig</div><h2>Scroll dig klogere</h2><p>Hele dit pensumfeed — ny rækkefølge hver gang.</p></div><button class="btn fact-refresh" data-action="fact-refresh">Ny blanding ↻</button></div>
     <div class="fact-feed-list">${cards}</div>
-    <div class="fact-feed-progress">Swipe op for næste ↑</div>
+    <div class="fact-feed-progress">${facts.length} kort · swipe op ↑</div>
   </section>`;
 }
 
