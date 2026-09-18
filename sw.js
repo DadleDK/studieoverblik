@@ -1,4 +1,4 @@
-const CACHE_NAME = "studieoverblik-v11";
+const CACHE_NAME = "studieoverblik-v12";
 const APP_SHELL = ["./", "./index.html", "./redesign.css", "./app.webmanifest", "./app-icon.svg", "./app-icon-192.png", "./app-icon-512.png", "./apple-touch-icon.png", "./quiz-data-eo.js", "./quiz-data-org.js", "./quiz-data-sm.js"];
 
 self.addEventListener("install", event => {
