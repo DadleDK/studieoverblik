@@ -65,6 +65,7 @@ body[data-active-view="today"] .fact-refresh {
   font-weight: 780;
 }
 body[data-active-view="today"] .fact-refresh { width: 44px; padding: 0; font-size: 1.15rem; }
+body[data-active-view="today"] .fact-refresh::before { content: none; }
 body[data-active-view="today"] .fact-settings:hover,
 body[data-active-view="today"] .fact-refresh:hover { background: var(--engagement-chip-strong); transform: none; }
 .fact-settings-panel {
@@ -178,8 +179,9 @@ body[data-active-view="today"] .fact-card-v15 .fact-question {
   opacity: 1;
   transform: translateY(0);
   transition: opacity .18s ease, transform .18s ease;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+.fact-reveal-area::-webkit-scrollbar { display: none; }
 .fact-reveal-area[hidden] { display: block !important; max-height: 0; overflow: hidden; opacity: 0; transform: translateY(.35rem); }
 body[data-active-view="today"] .fact-card-v15 .fact-answer {
   max-width: 38rem;
@@ -400,4 +402,3 @@ body[data-active-view="today"] .fact-card-v15.is-revealed .fact-type-row {
   .fact-selfcheck { grid-template-columns: 1fr; }
   .fact-rate-btn { min-height: 38px; }
 }
-

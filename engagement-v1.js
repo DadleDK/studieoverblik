@@ -465,7 +465,7 @@
         </div>
       </div>
       <div class="fact-feed-list">${cards}</div>
-      <div class="fact-feed-progress" id="factFeedProgress">1 / ${factFeedItems.length} · ${Math.min(mix.count + 1, MIX_TARGET)} af ${MIX_TARGET}</div>
+      <div class="fact-feed-progress" id="factFeedProgress">1 / ${factFeedItems.length} · ${Math.min(mix.count, MIX_TARGET)} af ${MIX_TARGET}</div>
       ${mixSummaryMarkup()}
     </section>`;
   };
@@ -531,7 +531,7 @@
           const localIndex = Math.max(0, Math.round(feedList.scrollTop / height));
           const currentIndex = Math.min(factFeedItems.length - 1, factFeedWindowStart + localIndex);
           const mix = getDailyMix();
-          feedProgress.textContent = `${currentIndex + 1} / ${factFeedItems.length} · ${Math.min(mix.count + 1, MIX_TARGET)} af ${MIX_TARGET}`;
+          feedProgress.textContent = `${currentIndex + 1} / ${factFeedItems.length} · ${Math.min(mix.count, MIX_TARGET)} af ${MIX_TARGET}`;
           if (feedList.scrollHeight - feedList.scrollTop - height < height * 3) appendNextFactCards(feedList, FACT_FEED_BATCH);
           trimFactDom(feedList, localIndex);
           ticking = false;
@@ -626,4 +626,3 @@
 
   rerenderCurrentWeek();
 })();
-
