@@ -1,5 +1,5 @@
-const CACHE_NAME = "studieoverblik-v14";
-const APP_SHELL = ["./", "./index.html", "./app.webmanifest", "./app-icon.svg", "./app-icon-192.png", "./app-icon-512.png", "./apple-touch-icon.png", "./quiz-data-eo.js", "./quiz-data-org.js", "./quiz-data-sm.js"];
+const CACHE_NAME = "studieoverblik-v15";
+const APP_SHELL = ["./", "./index.html", "./design-v2.css", "./app.webmanifest", "./app-icon.svg", "./app-icon-192.png", "./app-icon-512.png", "./apple-touch-icon.png", "./quiz-data-eo.js", "./quiz-data-org.js", "./quiz-data-sm.js"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));

@@ -3,7 +3,7 @@
   "short_name": "Studieoverblik",
   "description": "Et roligt, lokalt studieoverblik med quiz og eksamenstræning.",
   "lang": "da",
-  "start_url": "./index.html?v=14",
+  "start_url": "./index.html?v=15",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
