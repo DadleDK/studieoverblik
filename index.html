@@ -2246,6 +2246,12 @@ function renderNextStep(week) {
 // semesters automatically appear here when their data pack is registered.
 // =========================================================================
 let factFeedSeed = Math.random();
+let factFeedItems = [];
+let factFeedRenderedCount = 0;
+let factFeedWindowStart = 0;
+const FACT_FEED_INITIAL = 12;
+const FACT_FEED_BATCH = 10;
+const FACT_FEED_MAX_DOM = 32;
 
 function factFromQuestion(q, week) {
   let answer = "";
@@ -2282,12 +2288,8 @@ function seededFactShuffle(items, seed) {
   return copy;
 }
 
-function renderFactFeed() {
-  // Render the full auto-gradable curriculum pool in a fresh order. This
-  // gives the home screen a genuinely long feed without repeating a card
-  // before the available bank has been exhausted.
-  const facts = seededFactShuffle(curriculumFactPool(), factFeedSeed);
-  const cards = facts.map(fact => `
+function factCardMarkup(fact) {
+  return `
     <article class="fact-card">
       <div class="fact-card-meta"><span class="fact-subject">${fact.subject}</span><span class="fact-difficulty">Niveau ${fact.difficulty}</span></div>
       <div class="fact-didyouknow">Vidste du?</div>
@@ -2298,26 +2300,73 @@ function renderFactFeed() {
         <span class="fact-topic">${fact.topic}</span>
         <button class="fact-quiz-btn" data-action="fact-quiz" data-subject="${fact.subjectId}" data-week="${fact.weekId}">Quiz mig →</button>
       </div>
-    </article>`).join("");
+    </article>`;
+}
+
+function renderFactFeed() {
+  // Keep the full curriculum available, but only mount a small window of
+  // cards. Rendering hundreds of full-screen cards at once can make mobile
+  // Safari repeatedly reload the page.
+  factFeedItems = seededFactShuffle(curriculumFactPool(), factFeedSeed);
+  factFeedWindowStart = 0;
+  factFeedRenderedCount = Math.min(FACT_FEED_INITIAL, factFeedItems.length);
+  const cards = factFeedItems.slice(0, factFeedRenderedCount).map(factCardMarkup).join("");
   return `<section class="card fact-feed fade-in">
     <div class="fact-feed-head"><div><div class="fact-feed-kicker">For dig</div><h2>Scroll dig klogere</h2><p>Hele dit pensumfeed — ny rækkefølge hver gang.</p></div><button class="btn fact-refresh" data-action="fact-refresh">Ny blanding ↻</button></div>
     <div class="fact-feed-list">${cards}</div>
-    <div class="fact-feed-progress">${facts.length} kort · swipe op ↑</div>
+    <div class="fact-feed-progress" id="factFeedProgress">1 / ${factFeedItems.length} · swipe op ↑</div>
   </section>`;
 }
 
 function wireFactFeed() {
+  const feedList = document.querySelector(".fact-feed-list");
+  const feedProgress = document.getElementById("factFeedProgress");
+  if (feedList && feedProgress) {
+    let ticking = false;
+    feedList.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const height = Math.max(1, feedList.clientHeight);
+        const localIndex = Math.max(0, Math.round(feedList.scrollTop / height));
+        const currentIndex = Math.min(factFeedItems.length - 1, factFeedWindowStart + localIndex);
+        feedProgress.textContent = `${currentIndex + 1} / ${factFeedItems.length} · swipe op ↑`;
+
+        if (feedList.scrollHeight - feedList.scrollTop - height < height * 3 && factFeedRenderedCount < factFeedItems.length) {
+          const end = Math.min(factFeedItems.length, factFeedRenderedCount + FACT_FEED_BATCH);
+          feedList.insertAdjacentHTML("beforeend", factFeedItems.slice(factFeedRenderedCount, end).map(factCardMarkup).join(""));
+          factFeedRenderedCount = end;
+        }
+
+        if (feedList.children.length > FACT_FEED_MAX_DOM && localIndex > FACT_FEED_BATCH + 2) {
+          const removeCount = Math.min(FACT_FEED_BATCH, feedList.children.length - FACT_FEED_MAX_DOM);
+          let removedHeight = 0;
+          for (let i = 0; i < removeCount; i++) {
+            const first = feedList.firstElementChild;
+            if (!first) break;
+            removedHeight += first.getBoundingClientRect().height;
+            first.remove();
+          }
+          factFeedWindowStart += removeCount;
+          feedList.scrollTop = Math.max(0, feedList.scrollTop - removedHeight);
+        }
+        ticking = false;
+      });
+    }, { passive:true });
+  }
   document.querySelectorAll('[data-action="fact-refresh"]').forEach(btn => btn.addEventListener("click", () => {
     factFeedSeed = Math.random();
     const week = findSemesterWeek(storageGet("selectedWeek." + activeSubjectId)) || weeks[0];
     renderWeek(week);
   }));
-  document.querySelectorAll('[data-action="fact-quiz"]').forEach(btn => btn.addEventListener("click", () => {
+  if (feedList) feedList.addEventListener("click", event => {
+    const btn = event.target.closest('[data-action="fact-quiz"]');
+    if (!btn) return;
     quizUI.mode = "basis"; quizUI.exam = null;
     activateSubject(btn.dataset.subject, btn.dataset.week);
     setView("quiz");
     window.scrollTo({ top:0, behavior:"smooth" });
-  }));
+  });
 }
 
 // =========================================================================
